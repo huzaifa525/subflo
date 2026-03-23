@@ -196,6 +196,37 @@ export default function LandingPage() {
         </div>
       </div>
 
+      {/* ── Built by ── */}
+      <section className="py-20 px-5">
+        <div className="max-w-[560px] mx-auto">
+          <div className="rounded-2xl border border-zinc-800/60 p-7 sm:p-9 flex flex-col sm:flex-row gap-6 items-start" style={{ background: "rgba(255,255,255,0.012)" }}>
+            <div className="w-14 h-14 rounded-xl shrink-0 flex items-center justify-center text-xl font-bold" style={{ background: "linear-gradient(135deg, rgba(99,91,255,0.15), rgba(99,91,255,0.05))", color: "#a5a0ff" }}>H</div>
+            <div className="space-y-3">
+              <div>
+                <h3 className="text-[15px] font-semibold tracking-[-0.01em]">Built by Huzefa Nalkheda Wala</h3>
+                <p className="text-[12px] text-zinc-500 mt-1">AI Product Engineer &middot; IIT Ropar &middot; CleverFlow (Dubai)</p>
+              </div>
+              <p className="text-[12px] leading-[1.7] text-zinc-500">
+                Building production AI systems at scale — 20K+ req/s, 45+ features shipped, 99.5% uptime. Creator of MedGenius LLaMA (1,200+ downloads) and Medical Intelligence Dataset (40K records). Patent holder.
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {[
+                  { label: "Portfolio", href: "https://huzefanalkhedawala.in" },
+                  { label: "GitHub", href: "https://github.com/huzaifa525" },
+                  { label: "LinkedIn", href: "https://linkedin.com/in/huzefanalkheda" },
+                  { label: "HuggingFace", href: "https://huggingface.co/huzaifa525" },
+                  { label: "Medium", href: "https://huzefanalkheda.medium.com" },
+                ].map((l) => (
+                  <a key={l.label} href={l.href} target="_blank" rel="noopener noreferrer" className="px-2.5 py-1 rounded-md text-[10px] font-medium border border-zinc-800 text-zinc-500 hover:text-zinc-300 hover:border-zinc-600 transition-all">
+                    {l.label}
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ── CTA ── */}
       <section className="py-28 px-5 relative">
         <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse at 50% 80%, rgba(99,91,255,0.06), transparent 50%)" }} />
