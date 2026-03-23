@@ -279,24 +279,29 @@ export default function SettingsPage() {
               <div className="space-y-3 pt-1">
                 <div className="flex items-center justify-between">
                   <p className="text-[12px] font-medium" style={{ color: "var(--text-secondary)" }}>Scan inbox for subscriptions</p>
-                  <button
-                    onClick={async () => {
-                      setGmailScanning(true);
-                      setGmailScanResult(null);
-                      const res = await fetch("/api/email/scan", { method: "POST" });
-                      const data = await res.json();
-                      setGmailScanResult(data);
-                      setGmailScanning(false);
-                    }}
-                    disabled={gmailScanning}
-                    className="sf-btn sf-btn-secondary text-xs"
-                  >
-                    {gmailScanning ? (
-                      <><svg className="animate-spin" width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" strokeDasharray="28" strokeDashoffset="8"/></svg> Scanning...</>
-                    ) : (
-                      <><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M1 4l7 5 7-5M1 4v8a2 2 0 002 2h10a2 2 0 002-2V4" stroke="currentColor" strokeWidth="1.3"/></svg> Scan last 60 days</>
-                    )}
-                  </button>
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={async () => {
+                        // Force rescan — clear old records first
+                        await fetch("/api/email/reset", { method: "POST" });
+                        setGmailScanning(true);
+                        setGmailScanResult(null);
+                        setTrackedEmails(new Set());
+                        const res = await fetch("/api/email/scan", { method: "POST" });
+                        const data = await res.json();
+                        setGmailScanResult(data);
+                        setGmailScanning(false);
+                      }}
+                      disabled={gmailScanning}
+                      className="sf-btn sf-btn-secondary text-xs"
+                    >
+                      {gmailScanning ? (
+                        <><svg className="animate-spin" width="12" height="12" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" strokeDasharray="28" strokeDashoffset="8"/></svg> Scanning...</>
+                      ) : (
+                        <><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M1 4l7 5 7-5M1 4v8a2 2 0 002 2h10a2 2 0 002-2V4" stroke="currentColor" strokeWidth="1.3"/></svg> Scan inbox</>
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 {gmailScanning && (

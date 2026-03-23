@@ -76,16 +76,26 @@ export async function POST() {
 
   for (const email of emails.slice(0, 50)) {
     // Skip already processed
-    // Only skip if ALREADY FOUND as subscription — re-process rejected ones
+    // Only skip if we already created a subscription from this email
     const existing = await prisma.emailRecord.findFirst({
       where: { userId, messageId: email.id, provider: "gmail" },
     });
-    if (existing?.processed) {
-      console.log(`[Scan] SKIP (already tracked): ${email.subject.slice(0, 50)}`);
-      continue;
-    }
-    // Delete old failed record to re-process
     if (existing) {
+      // Check if a subscription was actually created from this email
+      if (existing.processed) {
+        const parsedData = existing.parsedData ? JSON.parse(existing.parsedData) : null;
+        const serviceName = parsedData?.service_name;
+        if (serviceName) {
+          const hasSub = await prisma.subscription.findFirst({
+            where: { userId, serviceName, status: { not: "cancelled" } },
+          });
+          if (hasSub) {
+            console.log(`[Scan] SKIP (subscription exists): ${email.subject.slice(0, 50)}`);
+            continue;
+          }
+        }
+      }
+      // No matching subscription — delete record and re-process
       await prisma.emailRecord.delete({ where: { id: existing.id } });
     }
 
