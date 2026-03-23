@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ServiceLogo } from "@/components/ui/service-logo";
 import { fmt } from "@/lib/currency-symbols";
+import { getCancelUrl } from "@/lib/cancel-links";
 
 interface Subscription {
   id: string; serviceName: string; planName: string | null; amount: number; currency: string; billingCycle: string;
@@ -141,7 +142,13 @@ export default function SubscriptionDetailPage() {
         {sub.status === "active" && (
           <>
             <button onClick={() => setStatus("paused")} className="sf-btn sf-btn-secondary text-xs">Pause</button>
-            <button onClick={() => setStatus("cancelled")} className="sf-btn sf-btn-danger text-xs">Cancel subscription</button>
+            {getCancelUrl(sub.serviceName) ? (
+              <a href={getCancelUrl(sub.serviceName)!} target="_blank" rel="noopener noreferrer" onClick={() => setStatus("cancelled")} className="sf-btn sf-btn-danger text-xs">
+                Cancel on {sub.serviceName}
+              </a>
+            ) : (
+              <button onClick={() => setStatus("cancelled")} className="sf-btn sf-btn-danger text-xs">Cancel subscription</button>
+            )}
           </>
         )}
         {sub.status !== "active" && (

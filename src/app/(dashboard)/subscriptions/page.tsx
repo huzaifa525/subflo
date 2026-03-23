@@ -140,15 +140,36 @@ export default function SubscriptionsPage() {
                   {sub.status}
                 </span>
               </div>
-              <div className="col-span-1 flex justify-end">
+              <div className="col-span-1 flex justify-end gap-0.5">
+                {sub.status === "active" && (
+                  <button
+                    onClick={async (e) => { e.preventDefault(); e.stopPropagation(); await fetch(`/api/subscriptions/${sub.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "paused" }) }); setSubs(subs.map((s) => s.id === sub.id ? { ...s, status: "paused" } : s)); }}
+                    className="sf-btn sf-btn-ghost p-1"
+                    style={{ color: "var(--text-tertiary)" }}
+                    title="Pause"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><rect x="3" y="3" width="3" height="10" rx="1" fill="currentColor"/><rect x="10" y="3" width="3" height="10" rx="1" fill="currentColor"/></svg>
+                  </button>
+                )}
+                {sub.status === "paused" && (
+                  <button
+                    onClick={async (e) => { e.preventDefault(); e.stopPropagation(); await fetch(`/api/subscriptions/${sub.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "active" }) }); setSubs(subs.map((s) => s.id === sub.id ? { ...s, status: "active" } : s)); }}
+                    className="sf-btn sf-btn-ghost p-1"
+                    style={{ color: "var(--green)" }}
+                    title="Resume"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 3l9 5-9 5V3z" fill="currentColor"/></svg>
+                  </button>
+                )}
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(sub.id); }}
-                  className="sf-btn sf-btn-ghost p-1 opacity-0 group-hover:opacity-100"
+                  className="sf-btn sf-btn-ghost p-1"
                   style={{ color: "var(--text-tertiary)" }}
                   onMouseEnter={(e) => { e.currentTarget.style.color = "var(--red)"; }}
                   onMouseLeave={(e) => { e.currentTarget.style.color = "var(--text-tertiary)"; }}
+                  title="Delete"
                 >
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
                 </button>
               </div>
             </Link>

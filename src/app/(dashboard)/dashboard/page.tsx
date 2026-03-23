@@ -38,15 +38,18 @@ interface Subscription {
 export default function DashboardPage() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [insights, setInsights] = useState<{ type: string; icon: string; message: string; severity: string }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     Promise.all([
       fetch("/api/analytics").then((r) => r.json()),
       fetch("/api/subscriptions").then((r) => r.json()),
-    ]).then(([a, s]) => {
+      fetch("/api/insights").then((r) => r.json()),
+    ]).then(([a, s, i]) => {
       setAnalytics(a);
       setSubscriptions(s);
+      setInsights(i.insights || []);
       setLoading(false);
     });
   }, []);
@@ -95,6 +98,21 @@ export default function DashboardPage() {
           </div>
         ))}
       </div>
+
+      {/* Insights */}
+      {insights.length > 0 && (
+        <div className="space-y-1.5">
+          {insights.slice(0, 4).map((ins, i) => (
+            <div key={i} className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[12px]" style={{
+              background: ins.severity === "warning" ? "var(--yellow-muted)" : ins.severity === "success" ? "var(--green-muted)" : "var(--accent-muted)",
+              color: ins.severity === "warning" ? "var(--yellow)" : ins.severity === "success" ? "var(--green)" : "var(--accent-text)",
+            }}>
+              <span>{ins.icon}</span>
+              <span>{ins.message}</span>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div className="grid grid-cols-5 gap-4">
         {/* Subscriptions — 3 cols */}
