@@ -5,7 +5,7 @@ import { scanGmailSubscriptions, type ScannedEmail } from "@/lib/email/gmail-ima
 import { extractJSON } from "@/lib/llm/client";
 import { EMAIL_EXTRACTION_PROMPT } from "@/lib/llm/prompts";
 import { prisma } from "@/lib/db";
-import { searchServices } from "@/lib/pricing/database";
+import { mapServiceName, mapFromEmailSender } from "@/lib/service-mapper";
 
 interface ParsedEmail {
   is_subscription: boolean;
@@ -23,15 +23,15 @@ interface ParsedEmail {
   rejection_reason: string | null;
 }
 
-function mapToLocalService(name: string): { category: string; website: string } | null {
-  if (!name) return null;
-  const results = searchServices(name);
-  if (results.length > 0) return { category: results[0].category, website: results[0].website };
-  for (const word of name.toLowerCase().split(/\s+/)) {
-    if (word.length < 3) continue;
-    const partial = searchServices(word);
-    if (partial.length > 0) return { category: partial[0].category, website: partial[0].website };
+function resolveService(serviceName: string | null, from: string): { name: string; category: string; website: string } | null {
+  // Try mapping by service name first
+  if (serviceName) {
+    const byName = mapServiceName(serviceName);
+    if (byName) return byName;
   }
+  // Fallback: map by email sender domain
+  const bySender = mapFromEmailSender(from);
+  if (bySender) return bySender;
   return null;
 }
 
@@ -106,10 +106,15 @@ export async function POST() {
       const parsed = await extractJSON<ParsedEmail>(prompt, EMAIL_EXTRACTION_PROMPT, userId);
       console.log(`[Scan] Result: is_sub=${parsed.is_subscription} conf=${parsed.confidence} name=${parsed.service_name} amt=${parsed.amount} reason=${parsed.rejection_reason || "none"}`);
 
-      const localMatch = parsed.service_name ? mapToLocalService(parsed.service_name) : null;
-      if (localMatch && !parsed.category) parsed.category = localMatch.category;
+      // Map to known service — fixes names, adds website and category
+      const mapped = resolveService(parsed.service_name, email.from);
+      if (mapped) {
+        parsed.service_name = mapped.name; // Clean name: "Claude by Anthropic" → "Claude"
+        if (!parsed.category) parsed.category = mapped.category;
+      }
 
-      const website = email.website || localMatch?.website || null;
+      const website = mapped?.website || email.website || null;
+      const localMatch = mapped ? { category: mapped.category, website: mapped.website } : null;
 
       const nextRenewal = parsed.is_subscription
         ? (parsed.next_renewal || calculateNextRenewal(parsed.billing_cycle, email.date))

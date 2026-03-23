@@ -6,7 +6,7 @@ import { processReminders } from "@/lib/email/send-reminder";
 import { scanGmailSubscriptions } from "@/lib/email/gmail-imap";
 import { extractJSON } from "@/lib/llm/client";
 import { EMAIL_EXTRACTION_PROMPT } from "@/lib/llm/prompts";
-import { searchServices } from "@/lib/pricing/database";
+import { mapServiceName, mapFromEmailSender } from "@/lib/service-mapper";
 
 // Background auto-scan if last scan > 24 hours
 async function autoScanIfNeeded(userId: string) {
@@ -58,20 +58,23 @@ async function autoScanIfNeeded(userId: string) {
 
         // Auto-add new subscriptions
         if (parsed.is_subscription && parsed.amount && parsed.service_name) {
+          // Map to clean name
+          const mapped = mapServiceName(parsed.service_name) || mapFromEmailSender(email.from);
+          const cleanName = mapped?.name || parsed.service_name;
+
           const existingSub = await prisma.subscription.findFirst({
-            where: { userId, serviceName: parsed.service_name, status: "active" },
+            where: { userId, serviceName: cleanName, status: { not: "cancelled" } },
           });
           if (!existingSub) {
-            const localMatch = searchServices(parsed.service_name)[0];
             await prisma.subscription.create({
               data: {
                 userId,
-                serviceName: parsed.service_name,
+                serviceName: cleanName,
                 amount: parsed.amount,
                 currency: parsed.currency || "INR",
                 billingCycle: parsed.billing_cycle || "monthly",
-                category: localMatch?.category || parsed.category || null,
-                website: email.website || localMatch?.website || null,
+                category: mapped?.category || parsed.category || null,
+                website: mapped?.website || email.website || null,
                 source: "email",
                 nextRenewal: calculateNextRenewal(parsed.billing_cycle, email.date),
               },
