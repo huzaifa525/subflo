@@ -14,13 +14,18 @@ export async function POST() {
   let updated = 0;
 
   for (const sub of subs) {
+    console.log(`[Migrate] Checking: "${sub.serviceName}" | website: ${sub.website} | category: ${sub.category}`);
     const mapped = mapServiceName(sub.serviceName);
+    console.log(`[Migrate] Mapped to: ${mapped ? mapped.name : "NO MATCH"}`);
     if (!mapped) continue;
 
     const changes: Record<string, string> = {};
     if (mapped.name !== sub.serviceName) changes.serviceName = mapped.name;
-    if (!sub.website && mapped.website) changes.website = mapped.website;
-    if ((!sub.category || sub.category === "other") && mapped.category) changes.category = mapped.category;
+    // Fix website if missing, broken (short URLs like c.gle), or wrong
+    if (mapped.website && (!sub.website || sub.website.length < 15 || sub.website.includes("c.gle") || sub.website.includes("goo.gl") || sub.website.includes("bit.ly"))) {
+      changes.website = mapped.website;
+    }
+    if (mapped.category && (!sub.category || sub.category === "other")) changes.category = mapped.category;
 
     if (Object.keys(changes).length > 0) {
       await prisma.subscription.update({ where: { id: sub.id }, data: changes });

@@ -52,9 +52,6 @@ export default function SettingsPage() {
   const [outlookHelp, setOutlookHelp] = useState(false);
 
   useEffect(() => {
-    // Auto-migrate existing subscriptions on settings load
-    fetch("/api/migrate", { method: "POST" }).catch(() => {});
-
     Promise.all([
       fetch("/api/settings").then((r) => r.json()),
       fetch("/api/email/test").then((r) => r.json()),
@@ -596,7 +593,7 @@ export default function SettingsPage() {
       {/* ━━━ Export ━━━ */}
       <div className="sf-card p-4 space-y-3">
         <h2 className="text-[13px] font-semibold">Data</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button onClick={() => exportData("json")} className="sf-btn sf-btn-secondary text-xs">
             <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M8 10V2M8 10l-3-3M8 10l3-3M2 14h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
             JSON
