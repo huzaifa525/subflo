@@ -52,7 +52,7 @@ export default function AnalyticsPage() {
       </div>
 
       {/* Top stats */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         {[
           { label: "Monthly spend", value: `${sym(cur)}${data.totalMonthly.toFixed(0)}`, sub: "per month" },
           { label: "Yearly projection", value: `${sym(cur)}${data.totalYearly.toFixed(0)}`, sub: "per year" },
@@ -66,9 +66,9 @@ export default function AnalyticsPage() {
         ))}
       </div>
 
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {/* Monthly trend — 3 cols */}
-        <div className="col-span-3 sf-card">
+        <div className="md:col-span-3 sf-card">
           <div className="px-4 py-3 border-b" style={{ borderColor: "var(--border-default)" }}>
             <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Monthly spending</span>
           </div>
@@ -103,12 +103,12 @@ export default function AnalyticsPage() {
         </div>
 
         {/* Category breakdown — 2 cols */}
-        <div className="col-span-2 sf-card">
+        <div className="md:col-span-2 sf-card">
           <div className="px-4 py-3 border-b" style={{ borderColor: "var(--border-default)" }}>
             <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>By category</span>
           </div>
           {data.byCategory.length === 0 ? (
-            <div className="px-4 py-16 text-center text-xs" style={{ color: "var(--text-tertiary)" }}>No data</div>
+            <div className="px-4 py-16 text-center text-xs" style={{ color: "var(--text-tertiary)" }}>Add subscriptions with categories to see breakdown</div>
           ) : (
             <div className="p-4 space-y-3">
               {/* Donut-style summary */}

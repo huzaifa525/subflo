@@ -134,7 +134,7 @@ export default function SettingsPage() {
         </div>
         <div>
           <p className="text-[11px] font-medium mb-1.5" style={{ color: "var(--text-tertiary)" }}>Provider</p>
-          <div className="grid grid-cols-6 gap-1">
+          <div className="grid grid-cols-3 sm:grid-cols-6 gap-1">
             {LLM_PROVIDERS.map((p) => (
               <button key={p.id} onClick={() => pickProvider(p.id)} className="py-2 rounded-md text-center transition-all" style={{
                 background: ep === p.id ? "var(--accent-muted)" : "var(--bg-primary)",

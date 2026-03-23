@@ -97,9 +97,9 @@ export default function SubscriptionsPage() {
           <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>No subscriptions found</p>
         </div>
       ) : (
-        <div className="sf-card overflow-hidden">
+        <div className="sf-card overflow-hidden overflow-x-auto">
           {/* Header */}
-          <div className="grid grid-cols-12 gap-2 px-4 py-2 text-[11px] font-medium uppercase tracking-wider border-b" style={{ color: "var(--text-tertiary)", borderColor: "var(--border-default)" }}>
+          <div className="grid grid-cols-12 gap-2 px-4 py-2 text-[11px] font-medium uppercase tracking-wider border-b min-w-[600px]" style={{ color: "var(--text-tertiary)", borderColor: "var(--border-default)" }}>
             <span className="col-span-4">Service</span>
             <span className="col-span-2">Plan</span>
             <span className="col-span-2 text-right">Amount</span>
@@ -112,7 +112,7 @@ export default function SubscriptionsPage() {
             <Link
               key={sub.id}
               href={`/subscriptions/${sub.id}`}
-              className="grid grid-cols-12 gap-2 items-center px-4 py-2.5 border-b transition-colors"
+              className="grid grid-cols-12 gap-2 items-center px-4 py-2.5 border-b transition-colors min-w-[600px]"
               style={{ borderColor: "var(--border-subtle)" }}
               onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}

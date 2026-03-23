@@ -87,7 +87,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-5 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
         {[
           { label: "Monthly", value: `${sym(cur)}${analytics?.totalMonthly?.toFixed(0) || "0"}`, suffix: "" },
           { label: "Yearly", value: `${sym(cur)}${analytics?.totalYearly?.toFixed(0) || "0"}`, suffix: "" },
@@ -118,9 +118,9 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="grid grid-cols-5 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         {/* Subscriptions — 3 cols */}
-        <div className="col-span-3 sf-card">
+        <div className="md:col-span-3 sf-card">
           <div className="px-4 py-3 flex items-center justify-between border-b" style={{ borderColor: "var(--border-default)" }}>
             <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Recent subscriptions</span>
             <Link href="/subscriptions" className="text-[11px] font-medium" style={{ color: "var(--accent-text)" }}>View all</Link>
@@ -161,7 +161,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Right column — 2 cols */}
-        <div className="col-span-2 space-y-4">
+        <div className="md:col-span-2 space-y-4">
           {/* Upcoming renewals */}
           <div className="sf-card">
             <div className="px-4 py-3 border-b" style={{ borderColor: "var(--border-default)" }}>

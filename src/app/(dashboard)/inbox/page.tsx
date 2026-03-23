@@ -111,7 +111,7 @@ export default function InboxPage() {
           {/* How it works */}
           <div className="sf-card p-4 space-y-3">
             <h3 className="text-[13px] font-semibold">How it works</h3>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { step: "1", title: "Open SMS app", desc: "Find a bank transaction SMS" },
                 { step: "2", title: "Share to Subflo", desc: "Long press → Share → Subflo" },
@@ -190,12 +190,12 @@ export default function InboxPage() {
 
       {/* Results table */}
       {results.length > 0 && (
-        <div className="sf-card">
+        <div className="sf-card overflow-x-auto">
           <div className="px-4 py-3 border-b flex items-center justify-between" style={{ borderColor: "var(--border-default)" }}>
             <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Parsed transactions</span>
             {successCount > 0 && <span className="sf-badge sf-badge-green">{successCount} found</span>}
           </div>
-          <div className="grid grid-cols-12 gap-2 px-4 py-2 text-[11px] font-medium uppercase tracking-wider border-b" style={{ color: "var(--text-tertiary)", borderColor: "var(--border-default)" }}>
+          <div className="grid grid-cols-12 gap-2 px-4 py-2 text-[11px] font-medium uppercase tracking-wider border-b min-w-[600px]" style={{ color: "var(--text-tertiary)", borderColor: "var(--border-default)" }}>
             <span className="col-span-3">Merchant</span>
             <span className="col-span-2">Date</span>
             <span className="col-span-2">Bank</span>
@@ -211,7 +211,7 @@ export default function InboxPage() {
               </div>
             );
             return (
-              <div key={i} className="grid grid-cols-12 gap-2 items-center px-4 py-2.5 border-b" style={{ borderColor: "var(--border-subtle)" }}>
+              <div key={i} className="grid grid-cols-12 gap-2 items-center px-4 py-2.5 border-b min-w-[600px]" style={{ borderColor: "var(--border-subtle)" }}>
                 <div className="col-span-3"><p className="text-[13px] font-medium truncate">{(p.merchant as string) || "Unknown"}</p></div>
                 <div className="col-span-2"><span className="text-[12px] tabular-nums" style={{ color: "var(--text-secondary)" }}>{(p.date as string) || "—"}</span></div>
                 <div className="col-span-2"><span className="text-[12px]" style={{ color: "var(--text-tertiary)" }}>{(p.bank as string) || "—"}</span></div>
