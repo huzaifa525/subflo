@@ -39,6 +39,7 @@ export default function DashboardPage() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [insights, setInsights] = useState<{ type: string; icon: string; message: string; severity: string }[]>([]);
+  const [health, setHealth] = useState<{ score: number; grade: string } | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -46,10 +47,12 @@ export default function DashboardPage() {
       fetch("/api/analytics").then((r) => r.json()),
       fetch("/api/subscriptions").then((r) => r.json()),
       fetch("/api/insights").then((r) => r.json()),
-    ]).then(([a, s, i]) => {
+      fetch("/api/health-score").then((r) => r.json()),
+    ]).then(([a, s, i, h]) => {
       setAnalytics(a);
       setSubscriptions(s);
       setInsights(i.insights || []);
+      setHealth(h);
       setLoading(false);
     });
   }, []);
@@ -84,12 +87,13 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-5 gap-3">
         {[
           { label: "Monthly", value: `${sym(cur)}${analytics?.totalMonthly?.toFixed(0) || "0"}`, suffix: "" },
           { label: "Yearly", value: `${sym(cur)}${analytics?.totalYearly?.toFixed(0) || "0"}`, suffix: "" },
           { label: "Active", value: String(analytics?.subscriptionCount || 0), suffix: "subscriptions" },
           { label: "Renewing", value: String(analytics?.upcomingRenewals?.length || 0), suffix: "in 30 days" },
+          { label: "Health", value: health ? `${health.grade}` : "—", suffix: health ? `${health.score}/100` : "" },
         ].map((stat) => (
           <div key={stat.label} className="sf-card px-4 py-3.5">
             <p className="text-[11px] font-medium uppercase tracking-wider" style={{ color: "var(--text-tertiary)" }}>{stat.label}</p>
