@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { SubfloLogo } from "@/components/ui/subflo-logo";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function LoginPage() {
     <div className="min-h-screen flex items-center justify-center px-4" style={{ background: "var(--bg-primary)" }}>
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white font-semibold text-sm mx-auto mb-4" style={{ background: "var(--accent)" }}>S</div>
+          <div className="mx-auto mb-4"><SubfloLogo size={36} /></div>
           <h1 className="text-lg font-semibold tracking-tight">Sign in to Subflo</h1>
           <p className="text-xs mt-1" style={{ color: "var(--text-tertiary)" }}>Track your subscriptions smarter</p>
         </div>

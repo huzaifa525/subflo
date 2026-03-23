@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef } from "react";
+import { SubfloLogo } from "@/components/ui/subflo-logo";
 
 export default function LandingPage() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -27,11 +28,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50" style={{ background: "rgba(8,8,10,0.7)", backdropFilter: "blur(20px) saturate(180%)", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
         <div className="max-w-[1120px] mx-auto px-5 h-[54px] flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-              <rect width="24" height="24" rx="6" fill="url(#lg)" />
-              <path d="M7 10.5C7 8.567 8.567 7 10.5 7H13.5C15.433 7 17 8.567 17 10.5C17 12.433 15.433 14 13.5 14H10.5M7 13.5C7 15.433 8.567 17 10.5 17H13.5C15.433 17 17 15.433 17 13.5" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
-              <defs><linearGradient id="lg" x1="0" y1="0" x2="24" y2="24"><stop stopColor="#635bff" /><stop offset="1" stopColor="#4f46e5" /></linearGradient></defs>
-            </svg>
+            <SubfloLogo size={22} />
             <span className="text-[15px] font-semibold tracking-[-0.02em]">Subflo</span>
           </Link>
 
@@ -248,7 +245,7 @@ export default function LandingPage() {
       <footer className="py-8 px-5 border-t border-zinc-900">
         <div className="max-w-[1120px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-4 text-[11px] text-zinc-600">
-            <span className="font-medium text-zinc-400">Subflo</span>
+            <span className="flex items-center gap-1.5 font-medium text-zinc-400"><SubfloLogo size={14} /> Subflo</span>
             <span>MIT License</span>
           </div>
           <div className="flex items-center gap-4 text-[11px] text-zinc-600">

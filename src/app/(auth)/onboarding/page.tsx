@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { SubfloLogo } from "@/components/ui/subflo-logo";
 
 const LLM_PROVIDERS = [
   { id: "ollama", name: "Ollama", baseUrl: "http://localhost:11434/v1", needsKey: false, desc: "Local, free, private" },
@@ -90,7 +91,7 @@ export default function OnboardingPage() {
       {/* Top bar */}
       <div className="px-4 sm:px-6 py-4 flex items-center justify-between" style={{ borderBottom: "1px solid var(--border-default)" }}>
         <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-md flex items-center justify-center text-white font-bold text-[10px]" style={{ background: "linear-gradient(135deg, #635bff, #7a73ff)" }}>S</div>
+          <SubfloLogo size={22} />
           <span className="text-sm font-semibold tracking-tight">Subflo</span>
         </div>
         <button onClick={handleComplete} className="text-[12px]" style={{ color: "var(--text-tertiary)" }}>Skip setup</button>

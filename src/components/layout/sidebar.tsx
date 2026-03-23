@@ -6,6 +6,7 @@ import { signOut, useSession } from "next-auth/react";
 import { ThemeToggle } from "./theme-toggle";
 import { SearchBar } from "./search-bar";
 import { NotificationBell } from "./notification-bell";
+import { SubfloLogo } from "../ui/subflo-logo";
 
 const nav = [
   { href: "/dashboard", label: "Overview", icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 3a2 2 0 012-2h4v6H1V3zM9 1h4a2 2 0 012 2v2H9V1zM9 7h6v4a2 2 0 01-2 2H9V7zM1 9h6v6H3a2 2 0 01-2-2V9z" fill="currentColor" opacity=".7"/></svg> },
@@ -27,7 +28,7 @@ export function Sidebar() {
     <aside className="fixed left-0 top-0 z-40 h-screen w-56 border-r flex flex-col" style={{ background: "var(--bg-secondary)", borderColor: "var(--border-default)" }}>
       {/* Logo */}
       <div className="px-4 h-14 flex items-center gap-2.5 border-b" style={{ borderColor: "var(--border-default)" }}>
-        <div className="w-6 h-6 rounded-md flex items-center justify-center text-white font-semibold text-xs" style={{ background: "var(--accent)" }}>S</div>
+        <SubfloLogo size={22} />
         <span className="text-sm font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>Subflo</span>
       </div>
 

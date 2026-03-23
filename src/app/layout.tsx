@@ -10,6 +10,10 @@ export const metadata: Metadata = {
   description:
     "Open-source, AI-powered subscription tracker. Track recurring payments via email, SMS, and manual entry.",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/favicon.svg",
+    apple: "/icons/logo.svg",
+  },
 };
 
 export default function RootLayout({
