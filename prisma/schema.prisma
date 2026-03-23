@@ -1,0 +1,177 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String?
+  image         String?
+  onboarded     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  subscriptions Subscription[]
+  smsRecords    SMSRecord[]
+  emailRecords  EmailRecord[]
+  settings      UserSettings?
+}
+
+model UserSettings {
+  id              String  @id @default(cuid())
+  userId          String  @unique
+
+  // LLM Config (user sets in settings/onboarding)
+  llmProvider     String  @default("ollama")
+  llmBaseUrl      String  @default("http://localhost:11434/v1")
+  llmApiKey       String  @default("")
+  llmModel        String  @default("llama3.1:8b")
+
+  // Gmail (IMAP via App Password — no OAuth needed)
+  gmailEnabled    Boolean @default(false)
+  gmailEmail      String  @default("")
+  gmailAppPassword String @default("")
+
+  // Outlook (OAuth — Microsoft killed basic auth)
+  outlookEnabled  Boolean @default(false)
+  outlookToken    String  @default("") // stored OAuth access token
+
+  // SMS Config
+  smsEnabled      Boolean @default(true)
+  smsAutoRead     Boolean @default(false) // Android auto-read permission granted
+
+  // Aristocles Pricing API (auto-registered)
+  aristoclesKey   String  @default("")
+  country         String  @default("")
+
+  // Preferences
+  remindDaysBefore Int    @default(3)
+  currency         String @default("INR")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model Subscription {
+  id           String   @id @default(cuid())
+  userId       String
+  serviceName  String
+  planName     String?  // Basic, Premium, Pro, Family, etc.
+  amount       Float
+  currency     String   @default("INR")
+  billingCycle String   @default("monthly") // monthly, yearly, weekly, quarterly
+  nextRenewal  DateTime?
+  category     String?  // entertainment, productivity, cloud, etc.
+  status       String   @default("active") // active, paused, cancelled
+  paymentMethod String? // credit_card, debit_card, upi, net_banking, wallet, auto_debit
+  cardLast4    String?  // last 4 digits of card
+  autoRenew    Boolean  @default(true)
+  sharedWith   String?  // individual, family, team
+  logoUrl      String?
+  website      String?
+  source       String   @default("manual") // manual, email, sms
+  notes        String?
+  startedAt    DateTime? // when user first subscribed
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  payments  Payment[]
+  reminders Reminder[]
+}
+
+model Payment {
+  id             String   @id @default(cuid())
+  subscriptionId String
+  amount         Float
+  currency       String   @default("INR")
+  paidAt         DateTime @default(now())
+  source         String   @default("manual") // manual, email, sms
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+}
+
+model Reminder {
+  id             String   @id @default(cuid())
+  subscriptionId String
+  remindAt       DateTime
+  type           String   @default("before_renewal") // before_renewal, cancellation
+  sent           Boolean  @default(false)
+  daysBefore     Int      @default(3)
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+}
+
+model SMSRecord {
+  id             String   @id @default(cuid())
+  userId         String
+  rawText        String
+  parsedMerchant String?
+  parsedAmount   Float?
+  parsedDate     DateTime?
+  parsedCurrency String?
+  processed      Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model EmailRecord {
+  id         String   @id @default(cuid())
+  userId     String
+  messageId  String
+  provider   String   // gmail, outlook
+  subject    String?
+  from       String?
+  parsedData String?  // JSON string of extracted data
+  processed  Boolean  @default(false)
+  receivedAt DateTime?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, messageId, provider])
+}

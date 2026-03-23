@@ -1,0 +1,407 @@
+[
+  {
+    "id": "netflix",
+    "name": "Netflix",
+    "website": "https://netflix.com",
+    "category": "entertainment",
+    "plans": [
+      { "name": "Mobile", "price": 149, "currency": "INR", "cycle": "monthly", "yearlyPrice": 1788 },
+      { "name": "Basic", "price": 199, "currency": "INR", "cycle": "monthly", "yearlyPrice": 2388 },
+      { "name": "Standard", "price": 499, "currency": "INR", "cycle": "monthly", "yearlyPrice": 5988 },
+      { "name": "Premium", "price": 649, "currency": "INR", "cycle": "monthly", "yearlyPrice": 7788 }
+    ]
+  },
+  {
+    "id": "spotify",
+    "name": "Spotify",
+    "website": "https://spotify.com",
+    "category": "music",
+    "plans": [
+      { "name": "Individual", "price": 119, "currency": "INR", "cycle": "monthly", "yearlyPrice": 1189 },
+      { "name": "Duo", "price": 149, "currency": "INR", "cycle": "monthly", "yearlyPrice": 1489 },
+      { "name": "Family", "price": 179, "currency": "INR", "cycle": "monthly", "yearlyPrice": 1789 },
+      { "name": "Student", "price": 59, "currency": "INR", "cycle": "monthly", "yearlyPrice": 589 }
+    ]
+  },
+  {
+    "id": "youtube-premium",
+    "name": "YouTube Premium",
+    "website": "https://youtube.com",
+    "category": "entertainment",
+    "plans": [
+      { "name": "Individual", "price": 149, "currency": "INR", "cycle": "monthly" },
+      { "name": "Family", "price": 249, "currency": "INR", "cycle": "monthly" },
+      { "name": "Student", "price": 79, "currency": "INR", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "amazon-prime",
+    "name": "Amazon Prime",
+    "website": "https://amazon.in",
+    "category": "shopping",
+    "plans": [
+      { "name": "Monthly", "price": 299, "currency": "INR", "cycle": "monthly" },
+      { "name": "Quarterly", "price": 599, "currency": "INR", "cycle": "quarterly" },
+      { "name": "Annual", "price": 1499, "currency": "INR", "cycle": "yearly" }
+    ]
+  },
+  {
+    "id": "hotstar",
+    "name": "Disney+ Hotstar",
+    "website": "https://hotstar.com",
+    "category": "entertainment",
+    "plans": [
+      { "name": "Mobile", "price": 149, "currency": "INR", "cycle": "monthly" },
+      { "name": "Super", "price": 299, "currency": "INR", "cycle": "monthly" },
+      { "name": "Premium", "price": 499, "currency": "INR", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "chatgpt",
+    "name": "ChatGPT",
+    "website": "https://openai.com",
+    "category": "productivity",
+    "plans": [
+      { "name": "Plus", "price": 20, "currency": "USD", "cycle": "monthly", "yearlyPrice": 200 },
+      { "name": "Pro", "price": 200, "currency": "USD", "cycle": "monthly" },
+      { "name": "Team", "price": 30, "currency": "USD", "cycle": "monthly", "yearlyPrice": 300 }
+    ]
+  },
+  {
+    "id": "claude",
+    "name": "Claude",
+    "website": "https://claude.ai",
+    "category": "productivity",
+    "plans": [
+      { "name": "Pro", "price": 20, "currency": "USD", "cycle": "monthly", "yearlyPrice": 204 },
+      { "name": "Max 5x", "price": 100, "currency": "USD", "cycle": "monthly", "yearlyPrice": 1020 },
+      { "name": "Max 20x", "price": 200, "currency": "USD", "cycle": "monthly", "yearlyPrice": 2040 },
+      { "name": "Team", "price": 30, "currency": "USD", "cycle": "monthly", "yearlyPrice": 300 }
+    ]
+  },
+  {
+    "id": "github-copilot",
+    "name": "GitHub Copilot",
+    "website": "https://github.com",
+    "category": "developer",
+    "plans": [
+      { "name": "Individual", "price": 10, "currency": "USD", "cycle": "monthly" },
+      { "name": "Business", "price": 19, "currency": "USD", "cycle": "monthly" },
+      { "name": "Enterprise", "price": 39, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "notion",
+    "name": "Notion",
+    "website": "https://notion.so",
+    "category": "productivity",
+    "plans": [
+      { "name": "Plus", "price": 10, "currency": "USD", "cycle": "monthly" },
+      { "name": "Business", "price": 18, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "figma",
+    "name": "Figma",
+    "website": "https://figma.com",
+    "category": "developer",
+    "plans": [
+      { "name": "Professional", "price": 15, "currency": "USD", "cycle": "monthly" },
+      { "name": "Organization", "price": 45, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "vercel",
+    "name": "Vercel",
+    "website": "https://vercel.com",
+    "category": "cloud",
+    "plans": [
+      { "name": "Pro", "price": 20, "currency": "USD", "cycle": "monthly" },
+      { "name": "Enterprise", "price": 0, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "digitalocean",
+    "name": "DigitalOcean",
+    "website": "https://digitalocean.com",
+    "category": "cloud",
+    "plans": [
+      { "name": "Basic Droplet", "price": 6, "currency": "USD", "cycle": "monthly" },
+      { "name": "Regular Droplet", "price": 12, "currency": "USD", "cycle": "monthly" },
+      { "name": "Premium Droplet", "price": 24, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "railway",
+    "name": "Railway",
+    "website": "https://railway.app",
+    "category": "cloud",
+    "plans": [
+      { "name": "Hobby", "price": 5, "currency": "USD", "cycle": "monthly" },
+      { "name": "Pro", "price": 20, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "slack",
+    "name": "Slack",
+    "website": "https://slack.com",
+    "category": "productivity",
+    "plans": [
+      { "name": "Pro", "price": 8.75, "currency": "USD", "cycle": "monthly" },
+      { "name": "Business+", "price": 12.50, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "linear",
+    "name": "Linear",
+    "website": "https://linear.app",
+    "category": "developer",
+    "plans": [
+      { "name": "Standard", "price": 8, "currency": "USD", "cycle": "monthly" },
+      { "name": "Plus", "price": 14, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "jio",
+    "name": "Jio",
+    "website": "https://jio.com",
+    "category": "telecom",
+    "plans": [
+      { "name": "1.5GB/day", "price": 239, "currency": "INR", "cycle": "monthly" },
+      { "name": "2GB/day", "price": 299, "currency": "INR", "cycle": "monthly" },
+      { "name": "2.5GB/day", "price": 533, "currency": "INR", "cycle": "quarterly" },
+      { "name": "Annual", "price": 2999, "currency": "INR", "cycle": "yearly" }
+    ]
+  },
+  {
+    "id": "airtel",
+    "name": "Airtel",
+    "website": "https://airtel.in",
+    "category": "telecom",
+    "plans": [
+      { "name": "1.5GB/day", "price": 265, "currency": "INR", "cycle": "monthly" },
+      { "name": "2GB/day", "price": 299, "currency": "INR", "cycle": "monthly" },
+      { "name": "3GB/day", "price": 359, "currency": "INR", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "apple-music",
+    "name": "Apple Music",
+    "website": "https://apple.com/music",
+    "category": "music",
+    "plans": [
+      { "name": "Voice", "price": 49, "currency": "INR", "cycle": "monthly" },
+      { "name": "Student", "price": 59, "currency": "INR", "cycle": "monthly" },
+      { "name": "Individual", "price": 99, "currency": "INR", "cycle": "monthly" },
+      { "name": "Family", "price": 149, "currency": "INR", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "icloud",
+    "name": "iCloud+",
+    "website": "https://apple.com/icloud",
+    "category": "cloud",
+    "plans": [
+      { "name": "50GB", "price": 75, "currency": "INR", "cycle": "monthly" },
+      { "name": "200GB", "price": 219, "currency": "INR", "cycle": "monthly" },
+      { "name": "2TB", "price": 749, "currency": "INR", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "google-one",
+    "name": "Google One",
+    "website": "https://one.google.com",
+    "category": "cloud",
+    "plans": [
+      { "name": "100GB", "price": 130, "currency": "INR", "cycle": "monthly" },
+      { "name": "200GB", "price": 210, "currency": "INR", "cycle": "monthly" },
+      { "name": "2TB", "price": 650, "currency": "INR", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "canva",
+    "name": "Canva",
+    "website": "https://canva.com",
+    "category": "productivity",
+    "plans": [
+      { "name": "Pro", "price": 499, "currency": "INR", "cycle": "monthly" },
+      { "name": "Teams", "price": 799, "currency": "INR", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "adobe-cc",
+    "name": "Adobe Creative Cloud",
+    "website": "https://adobe.com",
+    "category": "productivity",
+    "plans": [
+      { "name": "Photography", "price": 9.99, "currency": "USD", "cycle": "monthly" },
+      { "name": "Single App", "price": 22.99, "currency": "USD", "cycle": "monthly" },
+      { "name": "All Apps", "price": 54.99, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "cursor",
+    "name": "Cursor",
+    "website": "https://cursor.com",
+    "category": "developer",
+    "plans": [
+      { "name": "Pro", "price": 20, "currency": "USD", "cycle": "monthly" },
+      { "name": "Business", "price": 40, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "perplexity",
+    "name": "Perplexity",
+    "website": "https://perplexity.ai",
+    "category": "productivity",
+    "plans": [
+      { "name": "Pro", "price": 20, "currency": "USD", "cycle": "monthly" },
+      { "name": "Pro Annual", "price": 200, "currency": "USD", "cycle": "yearly" }
+    ]
+  },
+  {
+    "id": "midjourney",
+    "name": "Midjourney",
+    "website": "https://midjourney.com",
+    "category": "productivity",
+    "plans": [
+      { "name": "Basic", "price": 10, "currency": "USD", "cycle": "monthly" },
+      { "name": "Standard", "price": 30, "currency": "USD", "cycle": "monthly" },
+      { "name": "Pro", "price": 60, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "nordvpn",
+    "name": "NordVPN",
+    "website": "https://nordvpn.com",
+    "category": "productivity",
+    "plans": [
+      { "name": "Basic Monthly", "price": 12.99, "currency": "USD", "cycle": "monthly" },
+      { "name": "Plus Monthly", "price": 13.99, "currency": "USD", "cycle": "monthly" },
+      { "name": "Basic 2-Year", "price": 83.76, "currency": "USD", "cycle": "yearly" }
+    ]
+  },
+  {
+    "id": "1password",
+    "name": "1Password",
+    "website": "https://1password.com",
+    "category": "productivity",
+    "plans": [
+      { "name": "Individual", "price": 2.99, "currency": "USD", "cycle": "monthly" },
+      { "name": "Families", "price": 4.99, "currency": "USD", "cycle": "monthly" },
+      { "name": "Business", "price": 7.99, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "dropbox",
+    "name": "Dropbox",
+    "website": "https://dropbox.com",
+    "category": "cloud",
+    "plans": [
+      { "name": "Plus", "price": 11.99, "currency": "USD", "cycle": "monthly" },
+      { "name": "Professional", "price": 22, "currency": "USD", "cycle": "monthly" },
+      { "name": "Business", "price": 15, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "grammarly",
+    "name": "Grammarly",
+    "website": "https://grammarly.com",
+    "category": "productivity",
+    "plans": [
+      { "name": "Premium", "price": 12, "currency": "USD", "cycle": "monthly" },
+      { "name": "Business", "price": 15, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "linkedin-premium",
+    "name": "LinkedIn Premium",
+    "website": "https://linkedin.com",
+    "category": "productivity",
+    "plans": [
+      { "name": "Career", "price": 29.99, "currency": "USD", "cycle": "monthly" },
+      { "name": "Business", "price": 59.99, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "zoom",
+    "name": "Zoom",
+    "website": "https://zoom.us",
+    "category": "productivity",
+    "plans": [
+      { "name": "Pro", "price": 13.33, "currency": "USD", "cycle": "monthly" },
+      { "name": "Business", "price": 21.99, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "swiggy-one",
+    "name": "Swiggy One",
+    "website": "https://swiggy.com",
+    "category": "shopping",
+    "plans": [
+      { "name": "Monthly", "price": 149, "currency": "INR", "cycle": "monthly" },
+      { "name": "Quarterly", "price": 399, "currency": "INR", "cycle": "quarterly" }
+    ]
+  },
+  {
+    "id": "zomato-gold",
+    "name": "Zomato Gold",
+    "website": "https://zomato.com",
+    "category": "shopping",
+    "plans": [
+      { "name": "Monthly", "price": 150, "currency": "INR", "cycle": "monthly" },
+      { "name": "Annual", "price": 1200, "currency": "INR", "cycle": "yearly" }
+    ]
+  },
+  {
+    "id": "jiocinema",
+    "name": "JioCinema",
+    "website": "https://jiocinema.com",
+    "category": "entertainment",
+    "plans": [
+      { "name": "Ad-Lite", "price": 29, "currency": "INR", "cycle": "monthly" },
+      { "name": "Premium", "price": 89, "currency": "INR", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "sonyliv",
+    "name": "SonyLIV",
+    "website": "https://sonyliv.com",
+    "category": "entertainment",
+    "plans": [
+      { "name": "Mobile", "price": 299, "currency": "INR", "cycle": "monthly" },
+      { "name": "Premium", "price": 699, "currency": "INR", "cycle": "monthly" },
+      { "name": "Annual", "price": 999, "currency": "INR", "cycle": "yearly" }
+    ]
+  },
+  {
+    "id": "zee5",
+    "name": "ZEE5",
+    "website": "https://zee5.com",
+    "category": "entertainment",
+    "plans": [
+      { "name": "Monthly", "price": 299, "currency": "INR", "cycle": "monthly" },
+      { "name": "Annual", "price": 999, "currency": "INR", "cycle": "yearly" }
+    ]
+  },
+  {
+    "id": "openrouter",
+    "name": "OpenRouter",
+    "website": "https://openrouter.ai",
+    "category": "developer",
+    "plans": [
+      { "name": "Pay-as-you-go", "price": 0, "currency": "USD", "cycle": "monthly" }
+    ]
+  },
+  {
+    "id": "gym",
+    "name": "Gym Membership",
+    "website": "",
+    "category": "health",
+    "plans": [
+      { "name": "Monthly", "price": 1500, "currency": "INR", "cycle": "monthly" },
+      { "name": "Quarterly", "price": 4000, "currency": "INR", "cycle": "quarterly" },
+      { "name": "Annual", "price": 12000, "currency": "INR", "cycle": "yearly" }
+    ]
+  }
+]
