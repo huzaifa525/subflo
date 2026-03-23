@@ -12,6 +12,7 @@ interface Subscription {
   website: string | null; logoUrl: string | null; source: string; notes: string | null;
   startedAt: string | null; createdAt: string;
   payments: { id: string; amount: number; currency: string; paidAt: string }[];
+  receipts: { id: string; emailSubject: string | null; emailFrom: string | null; emailDate: string | null; htmlContent: string | null; amount: number | null; currency: string | null }[];
 }
 
 interface Alternative {
@@ -28,6 +29,7 @@ export default function SubscriptionDetailPage() {
   const [loading, setLoading] = useState(true);
   const [alternatives, setAlternatives] = useState<Alternative[]>([]);
   const [loadingAlts, setLoadingAlts] = useState(false);
+  const [viewingReceipt, setViewingReceipt] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`/api/subscriptions/${params.id}`).then((r) => r.json()).then((d) => { setSub(d); setLoading(false); });
@@ -158,6 +160,42 @@ export default function SubscriptionDetailPage() {
                 {new Date(p.paidAt).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
               </span>
               <span className="text-[13px] font-medium tabular-nums">{fmt(p.amount, p.currency)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Receipts */}
+      {sub.receipts && sub.receipts.length > 0 && (
+        <div className="sf-card">
+          <div className="px-4 py-3 border-b" style={{ borderColor: "var(--border-default)" }}>
+            <span className="text-xs font-medium" style={{ color: "var(--text-secondary)" }}>Receipts ({sub.receipts.length})</span>
+          </div>
+          {sub.receipts.map((r) => (
+            <div key={r.id}>
+              <div className="px-4 py-2.5 flex items-center justify-between" style={{ borderBottom: "1px solid var(--border-subtle)" }}>
+                <div className="min-w-0 flex-1">
+                  <p className="text-[12px] font-medium truncate">{r.emailSubject || "Receipt"}</p>
+                  <p className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>
+                    {r.emailFrom?.split("<")[0].trim()} {r.emailDate ? `· ${new Date(r.emailDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "2-digit" })}` : ""}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {r.amount && <span className="text-[12px] tabular-nums font-medium">{fmt(r.amount, r.currency || "INR")}</span>}
+                  {r.htmlContent && (
+                    <button onClick={() => setViewingReceipt(viewingReceipt === r.id ? null : r.id)} className="sf-btn sf-btn-ghost text-[11px]" style={{ color: "var(--accent-text)" }}>
+                      {viewingReceipt === r.id ? "Hide" : "View"}
+                    </button>
+                  )}
+                </div>
+              </div>
+              {viewingReceipt === r.id && r.htmlContent && (
+                <div className="p-4 border-b" style={{ borderColor: "var(--border-subtle)", background: "var(--bg-primary)" }}>
+                  <div className="rounded-lg overflow-hidden border" style={{ borderColor: "var(--border-default)", maxHeight: 400, overflow: "auto", background: "#fff" }}>
+                    <iframe srcDoc={r.htmlContent} sandbox="" className="w-full" style={{ minHeight: 300, border: "none" }} />
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>

@@ -81,5 +81,20 @@ export async function POST(req: Request) {
     });
   }
 
+  // Save receipt if from email
+  if (body.source === "email" && body.receiptHtml) {
+    await prisma.receipt.create({
+      data: {
+        subscriptionId: subscription.id,
+        emailSubject: body.receiptSubject || null,
+        emailFrom: body.receiptFrom || null,
+        emailDate: body.receiptDate ? new Date(body.receiptDate) : null,
+        htmlContent: body.receiptHtml,
+        amount: subscription.amount,
+        currency: subscription.currency,
+      },
+    });
+  }
+
   return NextResponse.json(subscription, { status: 201 });
 }

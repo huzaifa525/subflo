@@ -17,7 +17,7 @@ export async function GET(
 
   const subscription = await prisma.subscription.findFirst({
     where: { id, userId },
-    include: { payments: { orderBy: { paidAt: "desc" } }, reminders: true },
+    include: { payments: { orderBy: { paidAt: "desc" } }, reminders: true, receipts: { orderBy: { createdAt: "desc" } } },
   });
 
   if (!subscription) {

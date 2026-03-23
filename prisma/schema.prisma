@@ -120,6 +120,7 @@ model Subscription {
 
   user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   payments  Payment[]
+  receipts  Receipt[]
   reminders Reminder[]
 }
 
@@ -141,6 +142,20 @@ model Reminder {
   type           String   @default("before_renewal") // before_renewal, cancellation
   sent           Boolean  @default(false)
   daysBefore     Int      @default(3)
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+}
+
+model Receipt {
+  id             String   @id @default(cuid())
+  subscriptionId String
+  emailSubject   String?
+  emailFrom      String?
+  emailDate      DateTime?
+  htmlContent    String?  // original email HTML for viewing receipt
+  amount         Float?
+  currency       String?
+  createdAt      DateTime @default(now())
 
   subscription Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
 }

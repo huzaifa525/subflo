@@ -278,7 +278,7 @@ export default function SettingsPage() {
                       <span className="sf-badge sf-badge-green">{gmailScanResult.subscriptions} subscriptions found</span>
                     </div>
 
-                    {(gmailScanResult.results as { subject: string; from: string; date: string; nextRenewal?: string; localMatch?: { category: string; website: string }; parsed: { service_name: string; plan_name?: string; amount: number; currency: string; billing_cycle: string; payment_method?: string; card_last4?: string; category?: string } | null }[])
+                    {(gmailScanResult.results as { subject: string; from: string; date: string; website?: string; htmlPreview?: string; nextRenewal?: string; localMatch?: { category: string; website: string }; parsed: { service_name: string; plan_name?: string; amount: number; currency: string; billing_cycle: string; payment_method?: string; card_last4?: string; category?: string } | null }[])
                       .filter((r) => r.parsed)
                       .map((r, i) => {
                         const tracked = trackedEmails.has(i);
@@ -315,10 +315,14 @@ export default function SettingsPage() {
                                         billingCycle: r.parsed!.billing_cycle || "monthly",
                                         nextRenewal: r.nextRenewal || null,
                                         category: r.localMatch?.category || r.parsed!.category || null,
-                                        website: r.localMatch?.website || null,
+                                        website: r.website || r.localMatch?.website || null,
                                         paymentMethod: r.parsed!.payment_method || null,
                                         cardLast4: r.parsed!.card_last4 || null,
                                         source: "email",
+                                        receiptHtml: r.htmlPreview || null,
+                                        receiptSubject: r.subject,
+                                        receiptFrom: r.from,
+                                        receiptDate: r.date,
                                       }),
                                     });
                                     if (res.ok) {
