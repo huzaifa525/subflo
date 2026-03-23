@@ -178,5 +178,5 @@ export function scorePaymentLikelihood(subject: string, from: string, body: stri
 
   score = Math.max(0, Math.min(100, score));
 
-  return { score, isPayment: score >= 40, signals };
+  return { score, isPayment: score >= 25, signals };
 }

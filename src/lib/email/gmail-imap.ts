@@ -131,8 +131,11 @@ export async function scanGmailSubscriptions(userId: string): Promise<{
   if (accounts.length === 0) return { emails: [], error: "No Gmail accounts configured" };
 
   const allEmails: ScannedEmail[] = [];
+  console.log(`[Gmail] Scanning ${accounts.length} account(s)`);
   for (const creds of accounts) {
+    console.log(`[Gmail] Scanning ${creds.email}`);
     const result = await scanSingleAccount(creds);
+    console.log(`[Gmail] Found ${result.emails.length} payment emails from ${creds.email}`);
     allEmails.push(...result.emails);
     // Update last scan time
     await prisma.gmailAccount.update({ where: { id: creds.id }, data: { lastScanAt: new Date() } });
@@ -164,33 +167,26 @@ async function scanSingleAccount(creds: GmailCredentials): Promise<{ emails: Sca
       const since = new Date();
       since.setDate(since.getDate() - 90); // Last 3 months
 
-      // Gmail-native search — focused on ACTUAL receipts, not marketing
-      const gmailQueries = [
-        // #1: Gmail's built-in receipt detector (most precise)
-        'label:^smartlabel_receipt',
-        // #2: Gmail purchase category
-        'category:purchases',
-        // #3: Known payment processor senders
-        'from:(googleplay-noreply@google.com OR no_reply@email.apple.com OR service@paypal.com OR payments-noreply@google.com OR msbill@microsoft.com)',
-        // #4: Receipt/invoice subjects with amount proof
-        'subject:(receipt OR invoice OR "payment confirmation" OR "order confirmation" OR "successfully charged" OR "auto-renewal" OR "billing statement")',
-        // #5: From known billing addresses
-        'from:(billing@ OR receipt@ OR invoice@ OR auto-confirm@ OR noreply@razorpay)',
+      // Standard IMAP SUBJECT search — X-GM-RAW is unreliable via ImapFlow
+      // Payment filter handles the smart scoring after fetch
+      const subjectQueries = [
+        "receipt", "invoice", "payment confirmation", "order confirmation",
+        "successfully charged", "auto-renewal", "billing statement",
+        "your payment", "payment received", "subscription renewed",
+        "transaction alert", "debit", "charged to",
       ];
 
-      for (const rawQuery of gmailQueries) {
+      for (const query of subjectQueries) {
         if (emails.length >= 200) break;
         try {
-          // Use Gmail's X-GM-RAW IMAP extension for native Gmail search
-          const results = await client.search({
-            since,
-            // @ts-expect-error -- X-GM-RAW is a Gmail IMAP extension not in types
-            'x-gm-raw': rawQuery,
-          });
+          console.log(`[Gmail] Searching subject: "${query}"`);
+          const results = await client.search({ since, subject: query });
 
+          const count = Array.isArray(results) ? results.length : 0;
+          console.log(`[Gmail] → ${count} results`);
           if (!results || !Array.isArray(results) || results.length === 0) continue;
 
-          for (const uid of results.slice(0, 50)) {
+          for (const uid of results.slice(0, 20)) {
             if (seenIds.has(String(uid)) || emails.length >= 200) continue;
             seenIds.add(String(uid));
 
@@ -214,7 +210,8 @@ async function scanSingleAccount(creds: GmailCredentials): Promise<{ emails: Sca
 
               // Score for payment likelihood — skip marketing emails
               const { score, isPayment, signals } = scorePaymentLikelihood(subject, from, text);
-              if (!isPayment) continue; // Skip non-payment emails
+              console.log(`[Gmail] Score ${score} (${isPayment ? "PASS" : "SKIP"}) | ${subject.slice(0, 60)} | ${signals.join(",")}`);
+              if (!isPayment) continue;
 
               emails.push({
                 id: String(uid),
@@ -228,55 +225,8 @@ async function scanSingleAccount(creds: GmailCredentials): Promise<{ emails: Sca
             } catch { continue; }
           }
         } catch {
-          // X-GM-RAW not supported — fallback to standard IMAP search
-          try {
-            const fallbackResults = await client.search({
-              since,
-              or: [
-                { subject: "receipt" },
-                { subject: "invoice" },
-                { subject: "payment" },
-                { subject: "subscription" },
-                { subject: "renewal" },
-                { subject: "billing" },
-                { subject: "order confirmation" },
-                { subject: "charged" },
-              ],
-            });
-            if (!fallbackResults || !Array.isArray(fallbackResults)) continue;
-
-            for (const uid of fallbackResults.slice(0, 30)) {
-              if (seenIds.has(String(uid)) || emails.length >= 200) continue;
-              seenIds.add(String(uid));
-
-              try {
-                const msg = await client.fetchOne(uid, { source: true });
-                if (!msg || !msg.source) continue;
-                const parsed = await simpleParser(msg.source as Buffer);
-                const html = typeof parsed.html === "string" ? parsed.html : "";
-                let text = parsed.text || "";
-                if (!text && html) text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
-                const urls = extractUrls(html, text);
-                const from = parsed.from?.text || "";
-                const subject = parsed.subject || "";
-                const website = detectWebsite(from, urls);
-
-                const { score, isPayment, signals } = scorePaymentLikelihood(subject, from, text);
-                if (!isPayment) continue;
-
-                emails.push({
-                  id: String(uid),
-                  subject, from,
-                  date: parsed.date?.toISOString() || "",
-                  body: text.slice(0, 3000),
-                  html: html.slice(0, 5000),
-                  website, urls,
-                  paymentScore: score,
-                  paymentSignals: signals,
-                });
-              } catch { continue; }
-            }
-          } catch { continue; }
+          console.log(`[Gmail] Search failed for query: "${query}"`);
+          continue;
         }
       }
     } finally {
