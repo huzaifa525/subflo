@@ -61,7 +61,7 @@ export default function SubscriptionsPage() {
       </div>
 
       {/* Filters */}
-      <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
         <div className="relative flex-1 max-w-xs">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2" width="14" height="14" viewBox="0 0 16 16" fill="none" style={{ color: "var(--text-tertiary)" }}>
             <circle cx="7" cy="7" r="5" stroke="currentColor" strokeWidth="1.5"/>
@@ -91,15 +91,15 @@ export default function SubscriptionsPage() {
         </div>
       </div>
 
-      {/* Table */}
+      {/* List */}
       {filtered.length === 0 ? (
         <div className="sf-card px-4 py-16 text-center">
           <p className="text-sm" style={{ color: "var(--text-tertiary)" }}>No subscriptions found</p>
         </div>
       ) : (
-        <div className="sf-card overflow-hidden overflow-x-auto">
-          {/* Header */}
-          <div className="grid grid-cols-12 gap-2 px-4 py-2 text-[11px] font-medium uppercase tracking-wider border-b min-w-[600px]" style={{ color: "var(--text-tertiary)", borderColor: "var(--border-default)" }}>
+        <div className="sf-card overflow-hidden">
+          {/* Desktop header — hidden on mobile */}
+          <div className="hidden md:grid grid-cols-12 gap-2 px-4 py-2 text-[11px] font-medium uppercase tracking-wider border-b" style={{ color: "var(--text-tertiary)", borderColor: "var(--border-default)" }}>
             <span className="col-span-4">Service</span>
             <span className="col-span-2">Plan</span>
             <span className="col-span-2 text-right">Amount</span>
@@ -107,40 +107,57 @@ export default function SubscriptionsPage() {
             <span className="col-span-1 text-center">Status</span>
             <span className="col-span-1"></span>
           </div>
-          {/* Rows */}
           {filtered.map((sub) => (
             <Link
               key={sub.id}
               href={`/subscriptions/${sub.id}`}
-              className="grid grid-cols-12 gap-2 items-center px-4 py-2.5 border-b transition-colors min-w-[600px]"
+              className="block md:grid md:grid-cols-12 gap-2 items-center px-4 py-3 md:py-2.5 border-b transition-colors"
               style={{ borderColor: "var(--border-subtle)" }}
               onMouseEnter={(e) => { e.currentTarget.style.background = "var(--bg-hover)"; }}
               onMouseLeave={(e) => { e.currentTarget.style.background = "transparent"; }}
             >
-              <div className="col-span-4 flex items-center gap-2.5">
+              {/* Mobile: card layout */}
+              <div className="flex items-center justify-between md:hidden">
+                <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                  <ServiceLogo name={sub.serviceName} website={sub.website} logoUrl={sub.logoUrl} size={32} />
+                  <div className="min-w-0">
+                    <p className="text-[13px] font-medium truncate">{sub.serviceName}</p>
+                    <p className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>
+                      <span className="capitalize">{sub.billingCycle}</span>
+                      {sub.nextRenewal && <> &middot; {new Date(sub.nextRenewal).toLocaleDateString("en-IN", { day: "2-digit", month: "short" })}</>}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="text-[13px] font-medium tabular-nums">{fmt(sub.amount, sub.currency)}</span>
+                  <span className={`sf-badge ${sub.status === "active" ? "sf-badge-green" : sub.status === "cancelled" ? "sf-badge-red" : "sf-badge-yellow"}`}>{sub.status}</span>
+                </div>
+              </div>
+              {/* Desktop: grid layout */}
+              <div className="hidden md:flex col-span-4 items-center gap-2.5">
                 <ServiceLogo name={sub.serviceName} website={sub.website} logoUrl={sub.logoUrl} size={26} />
                 <div className="min-w-0">
                   <p className="text-[13px] font-medium truncate">{sub.serviceName}</p>
                   <p className="text-[11px] capitalize" style={{ color: "var(--text-tertiary)" }}>{sub.category || "other"}</p>
                 </div>
               </div>
-              <div className="col-span-2">
+              <div className="hidden md:block col-span-2">
                 <span className="text-[12px] capitalize" style={{ color: "var(--text-secondary)" }}>{sub.billingCycle}</span>
               </div>
-              <div className="col-span-2 text-right">
+              <div className="hidden md:block col-span-2 text-right">
                 <span className="text-[13px] font-medium tabular-nums">{fmt(sub.amount, sub.currency)}</span>
               </div>
-              <div className="col-span-2 text-right">
+              <div className="hidden md:block col-span-2 text-right">
                 <span className="text-[12px] tabular-nums" style={{ color: "var(--text-secondary)" }}>
                   {sub.nextRenewal ? new Date(sub.nextRenewal).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "2-digit" }) : "—"}
                 </span>
               </div>
-              <div className="col-span-1 flex justify-center">
+              <div className="hidden md:flex col-span-1 justify-center">
                 <span className={`sf-badge ${sub.status === "active" ? "sf-badge-green" : sub.status === "cancelled" ? "sf-badge-red" : "sf-badge-yellow"}`}>
                   {sub.status}
                 </span>
               </div>
-              <div className="col-span-1 flex justify-end gap-0.5">
+              <div className="hidden md:flex col-span-1 justify-end gap-0.5">
                 {sub.status === "active" && (
                   <button
                     onClick={async (e) => { e.preventDefault(); e.stopPropagation(); await fetch(`/api/subscriptions/${sub.id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ status: "paused" }) }); setSubs(subs.map((s) => s.id === sub.id ? { ...s, status: "paused" } : s)); }}
