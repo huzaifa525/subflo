@@ -21,10 +21,8 @@ export async function GET() {
     llmBaseUrl: settings.llmBaseUrl,
     llmModel: settings.llmModel,
     hasLlmKey: !!settings.llmApiKey,
-    // Gmail (IMAP)
+    // Gmail
     gmailEnabled: settings.gmailEnabled,
-    gmailEmail: settings.gmailEmail,
-    hasGmailPassword: !!settings.gmailAppPassword,
     // Outlook (OAuth)
     outlookEnabled: settings.outlookEnabled,
     outlookConnected: !!settings.outlookToken,
@@ -50,7 +48,7 @@ export async function PATCH(req: Request) {
 
   const allowed = [
     "llmProvider", "llmBaseUrl", "llmApiKey", "llmModel",
-    "gmailEnabled", "gmailEmail", "gmailAppPassword",
+    "gmailEnabled",
     "outlookEnabled",
     "smsEnabled", "smsAutoRead",
     "currency", "country", "remindDaysBefore", "monthlyBudget",

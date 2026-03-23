@@ -3,14 +3,15 @@ import { simpleParser } from "mailparser";
 import { prisma } from "../db";
 
 interface GmailCredentials {
+  id: string;
   email: string;
   appPassword: string;
+  label: string | null;
 }
 
-async function getCredentials(userId: string): Promise<GmailCredentials | null> {
-  const settings = await prisma.userSettings.findUnique({ where: { userId } });
-  if (!settings?.gmailEmail || !settings?.gmailAppPassword) return null;
-  return { email: settings.gmailEmail, appPassword: settings.gmailAppPassword };
+async function getAllAccounts(userId: string): Promise<GmailCredentials[]> {
+  const accounts = await prisma.gmailAccount.findMany({ where: { userId } });
+  return accounts.map((a) => ({ id: a.id, email: a.email, appPassword: a.appPassword, label: a.label }));
 }
 
 function createClient(creds: GmailCredentials): ImapFlow {
@@ -23,19 +24,50 @@ function createClient(creds: GmailCredentials): ImapFlow {
   });
 }
 
-export async function testGmailConnection(userId: string): Promise<{ success: boolean; error?: string; email?: string }> {
-  const creds = await getCredentials(userId);
-  if (!creds) return { success: false, error: "Gmail not configured" };
-  const client = createClient(creds);
+export async function testGmailConnection(email: string, appPassword: string): Promise<{ success: boolean; error?: string }> {
+  const client = createClient({ id: "", email, appPassword, label: null });
   try {
     await client.connect();
     await client.logout();
-    return { success: true, email: creds.email };
+    return { success: true };
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Failed";
     if (msg.includes("AUTHENTICATIONFAILED")) return { success: false, error: "Invalid app password" };
     return { success: false, error: msg };
   }
+}
+
+export async function addGmailAccount(userId: string, email: string, appPassword: string, label?: string): Promise<{ success: boolean; error?: string }> {
+  const test = await testGmailConnection(email, appPassword);
+  if (!test.success) return test;
+
+  await prisma.gmailAccount.upsert({
+    where: { userId_email: { userId, email } },
+    update: { appPassword: appPassword.replace(/\s/g, ""), label },
+    create: { userId, email, appPassword: appPassword.replace(/\s/g, ""), label },
+  });
+
+  // Enable Gmail in settings
+  await prisma.userSettings.upsert({
+    where: { userId },
+    update: { gmailEnabled: true },
+    create: { userId, gmailEnabled: true },
+  });
+
+  return { success: true };
+}
+
+export async function removeGmailAccount(userId: string, email: string): Promise<void> {
+  await prisma.gmailAccount.deleteMany({ where: { userId, email } });
+  const remaining = await prisma.gmailAccount.count({ where: { userId } });
+  if (remaining === 0) {
+    await prisma.userSettings.update({ where: { userId }, data: { gmailEnabled: false } });
+  }
+}
+
+export async function listGmailAccounts(userId: string): Promise<{ email: string; label: string | null; lastScanAt: string | null }[]> {
+  const accounts = await prisma.gmailAccount.findMany({ where: { userId } });
+  return accounts.map((a) => ({ email: a.email, label: a.label, lastScanAt: a.lastScanAt?.toISOString() || null }));
 }
 
 // Extract all URLs from email HTML/text
@@ -92,9 +124,32 @@ export async function scanGmailSubscriptions(userId: string): Promise<{
   emails: ScannedEmail[];
   error?: string;
 }> {
-  const creds = await getCredentials(userId);
-  if (!creds) return { emails: [], error: "Gmail not configured" };
+  const accounts = await getAllAccounts(userId);
+  if (accounts.length === 0) return { emails: [], error: "No Gmail accounts configured" };
 
+  const allEmails: ScannedEmail[] = [];
+  for (const creds of accounts) {
+    const result = await scanSingleAccount(creds);
+    allEmails.push(...result.emails);
+    // Update last scan time
+    await prisma.gmailAccount.update({ where: { id: creds.id }, data: { lastScanAt: new Date() } });
+  }
+
+  // Deduplicate across accounts
+  const unique: ScannedEmail[] = [];
+  const seenSubjects = new Set<string>();
+  allEmails.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  for (const e of allEmails) {
+    const key = e.subject.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 40);
+    if (seenSubjects.has(key)) continue;
+    seenSubjects.add(key);
+    unique.push(e);
+  }
+
+  return { emails: unique };
+}
+
+async function scanSingleAccount(creds: GmailCredentials): Promise<{ emails: ScannedEmail[] }> {
   const client = createClient(creds);
   try {
     await client.connect();
@@ -216,20 +271,8 @@ export async function scanGmailSubscriptions(userId: string): Promise<{
     }
 
     await client.logout();
-
-    // Deduplicate
-    const unique: ScannedEmail[] = [];
-    const seenSubjects = new Set<string>();
-    emails.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
-    for (const e of emails) {
-      const key = e.subject.toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 40);
-      if (seenSubjects.has(key)) continue;
-      seenSubjects.add(key);
-      unique.push(e);
-    }
-
-    return { emails: unique };
-  } catch (err) {
-    return { emails: [], error: err instanceof Error ? err.message : "Failed" };
+    return { emails };
+  } catch {
+    return { emails: [] };
   }
 }

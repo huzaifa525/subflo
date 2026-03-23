@@ -23,6 +23,7 @@ model User {
   smsRecords    SMSRecord[]
   emailRecords  EmailRecord[]
   settings      UserSettings?
+  gmailAccounts GmailAccount[]
 }
 
 model UserSettings {
@@ -35,10 +36,8 @@ model UserSettings {
   llmApiKey       String  @default("")
   llmModel        String  @default("llama3.1:8b")
 
-  // Gmail (IMAP via App Password — no OAuth needed)
+  // Gmail
   gmailEnabled    Boolean @default(false)
-  gmailEmail      String  @default("")
-  gmailAppPassword String @default("")
 
   // Outlook (OAuth — Microsoft killed basic auth)
   outlookEnabled  Boolean @default(false)
@@ -58,6 +57,19 @@ model UserSettings {
   monthlyBudget    Float  @default(0) // 0 = no budget
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model GmailAccount {
+  id          String  @id @default(cuid())
+  userId      String
+  email       String
+  appPassword String
+  label       String? // "Personal", "Work", etc.
+  lastScanAt  DateTime?
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, email])
 }
 
 model Account {

@@ -14,7 +14,7 @@ const LLM_PROVIDERS = [
 
 interface Settings {
   llmProvider: string; llmBaseUrl: string; llmModel: string; hasLlmKey: boolean;
-  gmailEnabled: boolean; gmailEmail: string; hasGmailPassword: boolean;
+  gmailEnabled: boolean;
   outlookEnabled: boolean; outlookConnected: boolean;
   smsEnabled: boolean; smsAutoRead: boolean;
   currency: string; country: string; remindDaysBefore: number; monthlyBudget: number;
@@ -39,6 +39,8 @@ export default function SettingsPage() {
   // Gmail
   const [gEmail, setGEmail] = useState("");
   const [gPass, setGPass] = useState("");
+  const [gLabel, setGLabel] = useState("");
+  const [gmailAccounts, setGmailAccounts] = useState<{ email: string; label: string | null; lastScanAt: string | null }[]>([]);
   const [gmailHelp, setGmailHelp] = useState(false);
   const [gmailTesting, setGmailTesting] = useState(false);
   const [gmailStatus, setGmailStatus] = useState<{ success: boolean; message: string } | null>(null);
@@ -50,10 +52,13 @@ export default function SettingsPage() {
   const [outlookHelp, setOutlookHelp] = useState(false);
 
   useEffect(() => {
-    fetch("/api/settings").then((r) => r.json()).then((d) => {
+    Promise.all([
+      fetch("/api/settings").then((r) => r.json()),
+      fetch("/api/email/test").then((r) => r.json()),
+    ]).then(([d, g]) => {
       setS(d);
       setEp(d.llmProvider); setEUrl(d.llmBaseUrl); setEModel(d.llmModel);
-      setGEmail(d.gmailEmail || "");
+      setGmailAccounts(g.accounts || []);
       setLoading(false);
     });
   }, []);
@@ -172,52 +177,76 @@ export default function SettingsPage() {
         </button>
       </div>
 
-      {/* ━━━ Gmail (IMAP + App Password) ━━━ */}
+      {/* ━━━ Gmail (Multiple Accounts) ━━━ */}
       <div className="sf-card p-4 space-y-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: "var(--text-tertiary)" }}><path d="M1 4l7 5 7-5M1 4v8a2 2 0 002 2h10a2 2 0 002-2V4a2 2 0 00-2-2H3a2 2 0 00-2 2z" stroke="currentColor" strokeWidth="1.3"/></svg>
             <h2 className="text-[13px] font-semibold">Gmail</h2>
-            {s?.hasGmailPassword && <span className="sf-badge sf-badge-green">Connected</span>}
+            {gmailAccounts.length > 0 && <span className="sf-badge sf-badge-green">{gmailAccounts.length} account{gmailAccounts.length > 1 ? "s" : ""}</span>}
           </div>
           <button className="sf-toggle" data-active={String(!!s?.gmailEnabled)} onClick={() => save({ gmailEnabled: !s?.gmailEnabled })} />
         </div>
 
         {s?.gmailEnabled && (
           <div className="space-y-3 pt-1">
-            <p className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>
-              Uses IMAP with Google App Password. No OAuth app creation needed.
-            </p>
+            {/* Connected accounts list */}
+            {gmailAccounts.length > 0 && (
+              <div className="space-y-1.5">
+                {gmailAccounts.map((acc) => (
+                  <div key={acc.email} className="flex items-center justify-between py-2 px-2.5 rounded-lg" style={{ background: "var(--bg-primary)" }}>
+                    <div>
+                      <p className="text-[12px] font-medium">{acc.email}</p>
+                      <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>
+                        {acc.label || "Personal"} {acc.lastScanAt ? `· Last scan: ${new Date(acc.lastScanAt).toLocaleDateString()}` : "· Never scanned"}
+                      </p>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        await fetch("/api/email/test", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: acc.email }) });
+                        setGmailAccounts(gmailAccounts.filter((a) => a.email !== acc.email));
+                      }}
+                      className="sf-btn sf-btn-ghost text-[10px]" style={{ color: "var(--red)" }}
+                    >Remove</button>
+                  </div>
+                ))}
+              </div>
+            )}
 
-            <div>
-              <p className="text-[11px] font-medium mb-1" style={{ color: "var(--text-tertiary)" }}>Gmail address</p>
+            {/* Add new account form */}
+            <p className="text-[11px] font-medium pt-1" style={{ color: "var(--text-secondary)" }}>{gmailAccounts.length > 0 ? "Add another account" : "Add Gmail account"}</p>
+            <div className="grid grid-cols-2 gap-2">
               <input type="email" value={gEmail} onChange={(e) => setGEmail(e.target.value)} className="sf-input" placeholder="your.email@gmail.com" />
+              <input type="text" value={gLabel} onChange={(e) => setGLabel(e.target.value)} className="sf-input" placeholder="Label (e.g. Work)" />
             </div>
             <div>
-              <p className="text-[11px] font-medium mb-1" style={{ color: "var(--text-tertiary)" }}>App Password</p>
-              <input type="password" value={gPass} onChange={(e) => setGPass(e.target.value)} className="sf-input" placeholder={s?.hasGmailPassword ? "••••••••••••••••" : "xxxx xxxx xxxx xxxx"} />
+              <input type="password" value={gPass} onChange={(e) => setGPass(e.target.value)} className="sf-input" placeholder="App Password (xxxx xxxx xxxx xxxx)" />
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 onClick={async () => {
-                  // Save first
-                  await save({ gmailEmail: gEmail, ...(gPass && { gmailAppPassword: gPass }), gmailEnabled: true });
-                  // Then test connection
-                  setGmailTesting(true);
-                  setGmailStatus(null);
-                  const res = await fetch("/api/email/test", { method: "POST" });
+                  setGmailTesting(true); setGmailStatus(null);
+                  const res = await fetch("/api/email/test", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email: gEmail, appPassword: gPass, label: gLabel || undefined }),
+                  });
                   const data = await res.json();
                   setGmailStatus({
                     success: data.success,
-                    message: data.success ? `Connected to ${data.email}` : data.error || "Connection failed",
+                    message: data.success ? `Connected ${gEmail}` : data.error || "Connection failed",
                   });
+                  if (data.success) {
+                    setGmailAccounts([...gmailAccounts, { email: gEmail, label: gLabel || null, lastScanAt: null }]);
+                    setGEmail(""); setGPass(""); setGLabel("");
+                  }
                   setGmailTesting(false);
                 }}
-                disabled={saving || gmailTesting || !gEmail}
+                disabled={gmailTesting || !gEmail || !gPass}
                 className="sf-btn sf-btn-primary text-xs"
               >
-                {gmailTesting ? "Testing..." : saving ? "Saving..." : "Save & Test Connection"}
+                {gmailTesting ? "Testing..." : "Add & Test"}
               </button>
               <button onClick={() => setGmailHelp(!gmailHelp)} className="sf-btn sf-btn-ghost text-[11px]" style={{ color: "var(--accent-text)" }}>
                 {gmailHelp ? "Hide guide" : "How to get App Password?"}
@@ -240,7 +269,7 @@ export default function SettingsPage() {
             )}
 
             {/* Scan emails button — only show when connected */}
-            {(gmailStatus?.success || s?.hasGmailPassword) && (
+            {(gmailStatus?.success || gmailAccounts.length > 0) && (
               <div className="space-y-3 pt-1">
                 <div className="flex items-center justify-between">
                   <p className="text-[12px] font-medium" style={{ color: "var(--text-secondary)" }}>Scan inbox for subscriptions</p>
