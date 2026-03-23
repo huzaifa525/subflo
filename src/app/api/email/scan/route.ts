@@ -136,9 +136,21 @@ export async function POST() {
     }
   }
 
+  // Deduplicate by service name — keep latest (most recent date) per service
+  const deduped = new Map<string, typeof results[0]>();
+  for (const r of results) {
+    if (!r.parsed?.service_name) continue;
+    const key = r.parsed.service_name.toLowerCase();
+    const existing = deduped.get(key);
+    if (!existing || new Date(r.date) > new Date(existing.date)) {
+      deduped.set(key, r);
+    }
+  }
+  const uniqueResults = Array.from(deduped.values());
+
   return NextResponse.json({
     scanned: emails.length,
-    subscriptions: results.filter((r) => r.parsed?.is_subscription).length,
-    results,
+    subscriptions: uniqueResults.length,
+    results: uniqueResults,
   });
 }

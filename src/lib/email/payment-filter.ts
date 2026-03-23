@@ -147,6 +147,15 @@ export function scorePaymentLikelihood(subject: string, from: string, body: stri
     signals.push("payment-subject");
   }
 
+  // Bank transaction alerts — if they contain amounts, they're real debits
+  if (/transaction\s*alert|debit\s*alert|amount\s*debited/i.test(subject)) {
+    // Check if body has actual amount (not just "alert" with no data)
+    if (/(?:₹|Rs\.?|INR|USD|\$)\s*[\d,]+\.?\d*/.test(body) && /debited|paid|charged|spent/i.test(body)) {
+      score += 25;
+      signals.push("bank-debit-alert");
+    }
+  }
+
   if (PROMO_SUBJECTS.some((r) => r.test(subject))) {
     score -= 25;
     signals.push("promo-subject");

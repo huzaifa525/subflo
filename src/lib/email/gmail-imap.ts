@@ -170,10 +170,23 @@ async function scanSingleAccount(creds: GmailCredentials): Promise<{ emails: Sca
       // Standard IMAP SUBJECT search — X-GM-RAW is unreliable via ImapFlow
       // Payment filter handles the smart scoring after fetch
       const subjectQueries = [
-        "receipt", "invoice", "payment confirmation", "order confirmation",
-        "successfully charged", "auto-renewal", "billing statement",
-        "your payment", "payment received", "subscription renewed",
-        "transaction alert", "debit", "charged to",
+        // Receipts & invoices
+        "receipt", "invoice", "your order",
+        // Payment confirmations
+        "payment confirmation", "payment received", "payment successful",
+        "successfully charged", "successfully paid", "charged to",
+        // Subscriptions
+        "subscription", "renewal", "auto-renewal", "subscription renewed",
+        "your plan", "membership",
+        // Billing
+        "billing statement", "billing confirmation", "your payment",
+        // Bank alerts (contain actual debits)
+        "transaction alert", "debit alert", "amount debited",
+        "UPI transaction",
+        // Order/purchase
+        "order confirmation", "purchase confirmation",
+        // Google Play / Apple specific
+        "Google Play Order", "your purchase",
       ];
 
       for (const query of subjectQueries) {
