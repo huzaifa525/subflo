@@ -61,7 +61,7 @@ export async function GET() {
     count: data.count,
   }));
 
-  // Payment history by month (last 12 months)
+  // Monthly spending trend — generate from subscriptions if no payment records
   const payments = await prisma.payment.findMany({
     where: {
       subscription: { userId },
@@ -71,10 +71,34 @@ export async function GET() {
   });
 
   const monthMap = new Map<string, number>();
-  for (const p of payments) {
-    const key = `${p.paidAt.getFullYear()}-${String(p.paidAt.getMonth() + 1).padStart(2, "0")}`;
-    const converted = await toUserCurrency(p.amount, p.currency, userCurrency);
-    monthMap.set(key, (monthMap.get(key) || 0) + converted);
+
+  if (payments.length > 0) {
+    // Use actual payment records
+    for (const p of payments) {
+      const key = `${p.paidAt.getFullYear()}-${String(p.paidAt.getMonth() + 1).padStart(2, "0")}`;
+      const converted = await toUserCurrency(p.amount, p.currency, userCurrency);
+      monthMap.set(key, (monthMap.get(key) || 0) + converted);
+    }
+  } else {
+    // Generate from subscriptions — project last 6 months based on active subs
+    const now = new Date();
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+      let monthTotal = 0;
+
+      for (const sub of subscriptions) {
+        // Only include subs that existed in this month
+        if (sub.createdAt > d) continue;
+        const converted = await toUserCurrency(
+          getMonthlyEquivalent(sub.amount, sub.billingCycle),
+          sub.currency,
+          userCurrency
+        );
+        monthTotal += converted;
+      }
+      if (monthTotal > 0) monthMap.set(key, Math.round(monthTotal));
+    }
   }
 
   const byMonth = Array.from(monthMap.entries()).map(([month, amount]) => ({

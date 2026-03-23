@@ -67,6 +67,17 @@ export async function POST(req: Request) {
     },
   });
 
+  // Record initial payment
+  await prisma.payment.create({
+    data: {
+      subscriptionId: subscription.id,
+      amount: subscription.amount,
+      currency: subscription.currency,
+      paidAt: subscription.startedAt || subscription.createdAt,
+      source: body.source || "manual",
+    },
+  });
+
   // Create default reminder (3 days before renewal)
   if (subscription.nextRenewal) {
     const remindAt = new Date(subscription.nextRenewal);
