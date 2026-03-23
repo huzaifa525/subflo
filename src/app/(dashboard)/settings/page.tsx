@@ -52,6 +52,9 @@ export default function SettingsPage() {
   const [outlookHelp, setOutlookHelp] = useState(false);
 
   useEffect(() => {
+    // Auto-migrate existing subscriptions on settings load
+    fetch("/api/migrate", { method: "POST" }).catch(() => {});
+
     Promise.all([
       fetch("/api/settings").then((r) => r.json()),
       fetch("/api/email/test").then((r) => r.json()),
