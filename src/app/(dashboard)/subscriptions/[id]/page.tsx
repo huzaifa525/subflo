@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { ServiceLogo } from "@/components/ui/service-logo";
 import { fmt } from "@/lib/currency-symbols";
 
@@ -136,6 +137,7 @@ export default function SubscriptionDetailPage() {
 
       {/* Actions */}
       <div className="flex items-center gap-2">
+        <Link href={`/subscriptions/${sub.id}/edit`} className="sf-btn sf-btn-secondary text-xs">Edit</Link>
         {sub.status === "active" && (
           <>
             <button onClick={() => setStatus("paused")} className="sf-btn sf-btn-secondary text-xs">Pause</button>
