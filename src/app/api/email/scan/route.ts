@@ -20,6 +20,7 @@ interface ParsedEmail {
   payment_method: string | null;
   card_last4: string | null;
   action: string | null;
+  rejection_reason: string | null;
 }
 
 function mapToLocalService(name: string): { category: string; website: string } | null {
@@ -75,19 +76,29 @@ export async function POST() {
 
   for (const email of emails.slice(0, 50)) {
     // Skip already processed
+    // Only skip if ALREADY FOUND as subscription — re-process rejected ones
     const existing = await prisma.emailRecord.findFirst({
       where: { userId, messageId: email.id, provider: "gmail" },
     });
-    if (existing) continue;
+    if (existing?.processed) {
+      console.log(`[Scan] SKIP (already tracked): ${email.subject.slice(0, 50)}`);
+      continue;
+    }
+    // Delete old failed record to re-process
+    if (existing) {
+      await prisma.emailRecord.delete({ where: { id: existing.id } });
+    }
 
     try {
       const prompt = `Subject: ${email.subject}\nFrom: ${email.from}\nDate: ${email.date}\nWebsite URLs found: ${email.urls.slice(0, 5).join(", ")}\n\nBody:\n${email.body}`;
+
+      console.log(`[Scan] Parsing: ${email.subject.slice(0, 60)}`);
       const parsed = await extractJSON<ParsedEmail>(prompt, EMAIL_EXTRACTION_PROMPT, userId);
+      console.log(`[Scan] Result: is_sub=${parsed.is_subscription} conf=${parsed.confidence} name=${parsed.service_name} amt=${parsed.amount} reason=${parsed.rejection_reason || "none"}`);
 
       const localMatch = parsed.service_name ? mapToLocalService(parsed.service_name) : null;
       if (localMatch && !parsed.category) parsed.category = localMatch.category;
 
-      // Use website from email or local match
       const website = email.website || localMatch?.website || null;
 
       const nextRenewal = parsed.is_subscription
@@ -107,8 +118,8 @@ export async function POST() {
         },
       });
 
-      // Only include confirmed payments with medium+ confidence
-      if (parsed.is_subscription && parsed.confidence !== "low" && parsed.amount) {
+      // Include confirmed payments with amount
+      if (parsed.is_subscription && parsed.amount) {
         results.push({
           subject: email.subject,
           from: email.from,

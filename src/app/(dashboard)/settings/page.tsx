@@ -240,6 +240,12 @@ export default function SettingsPage() {
                   if (data.success) {
                     setGmailAccounts([...gmailAccounts, { email: gEmail, label: gLabel || null, lastScanAt: null }]);
                     setGEmail(""); setGPass(""); setGLabel("");
+                    // Auto-scan immediately after connecting
+                    setGmailScanning(true);
+                    fetch("/api/email/scan", { method: "POST" }).then((r) => r.json()).then((d) => {
+                      setGmailScanResult(d);
+                      setGmailScanning(false);
+                    });
                   }
                   setGmailTesting(false);
                 }}
