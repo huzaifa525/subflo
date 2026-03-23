@@ -24,6 +24,8 @@ model User {
   emailRecords  EmailRecord[]
   settings      UserSettings?
   gmailAccounts GmailAccount[]
+  familyMembers FamilyMember[] @relation("FamilyOwner")
+  memberOf      FamilyMember[] @relation("FamilyMember")
 }
 
 model UserSettings {
@@ -57,6 +59,19 @@ model UserSettings {
   monthlyBudget    Float  @default(0) // 0 = no budget
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model FamilyMember {
+  id       String @id @default(cuid())
+  ownerId  String // person who invited
+  memberId String // person who was invited
+  status   String @default("pending") // pending, accepted, rejected
+  createdAt DateTime @default(now())
+
+  owner  User @relation("FamilyOwner", fields: [ownerId], references: [id], onDelete: Cascade)
+  member User @relation("FamilyMember", fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerId, memberId])
 }
 
 model GmailAccount {
