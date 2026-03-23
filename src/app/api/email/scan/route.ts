@@ -9,6 +9,7 @@ import { searchServices } from "@/lib/pricing/database";
 
 interface ParsedEmail {
   is_subscription: boolean;
+  confidence: string | null;
   service_name: string | null;
   plan_name: string | null;
   amount: number | null;
@@ -65,6 +66,7 @@ export async function POST() {
     date: string;
     website: string | null;
     htmlPreview: string;
+    paymentScore?: number;
     parsed: ParsedEmail | null;
     localMatch: { category: string; website: string } | null;
     nextRenewal: string | null;
@@ -105,13 +107,15 @@ export async function POST() {
         },
       });
 
-      if (parsed.is_subscription) {
+      // Only include confirmed payments with medium+ confidence
+      if (parsed.is_subscription && parsed.confidence !== "low" && parsed.amount) {
         results.push({
           subject: email.subject,
           from: email.from,
           date: email.date,
           website,
           htmlPreview: email.html.slice(0, 500),
+          paymentScore: email.paymentScore,
           parsed,
           localMatch,
           nextRenewal,

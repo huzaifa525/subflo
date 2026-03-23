@@ -1,6 +1,7 @@
 import { ImapFlow } from "imapflow";
 import { simpleParser } from "mailparser";
 import { prisma } from "../db";
+import { scorePaymentLikelihood } from "./payment-filter";
 
 interface GmailCredentials {
   id: string;
@@ -118,6 +119,8 @@ export interface ScannedEmail {
   html: string;
   website: string | null;
   urls: string[];
+  paymentScore: number;
+  paymentSignals: string[];
 }
 
 export async function scanGmailSubscriptions(userId: string): Promise<{
@@ -161,16 +164,18 @@ async function scanSingleAccount(creds: GmailCredentials): Promise<{ emails: Sca
       const since = new Date();
       since.setDate(since.getDate() - 90); // Last 3 months
 
-      // Gmail-native search via X-GM-RAW — finds actual billing/receipt emails
-      // This uses Gmail's own classification, not keyword matching
+      // Gmail-native search — focused on ACTUAL receipts, not marketing
       const gmailQueries = [
-        // Gmail's purchase/receipt detection
+        // #1: Gmail's built-in receipt detector (most precise)
+        'label:^smartlabel_receipt',
+        // #2: Gmail purchase category
         'category:purchases',
-        'category:updates subject:(receipt OR invoice OR payment OR subscription)',
-        // Billing-specific senders
-        'from:(noreply OR no-reply OR billing OR receipt OR invoice OR payment OR notify OR notification) subject:(receipt OR invoice OR payment OR subscription OR renewal OR order OR purchase OR charged)',
-        // Transaction emails
-        'subject:("payment received" OR "payment confirmation" OR "order confirmation" OR "your receipt" OR "your invoice" OR "billing statement" OR "subscription confirmation" OR "auto-renewal" OR "successfully charged" OR "thank you for your payment" OR "your plan")',
+        // #3: Known payment processor senders
+        'from:(googleplay-noreply@google.com OR no_reply@email.apple.com OR service@paypal.com OR payments-noreply@google.com OR msbill@microsoft.com)',
+        // #4: Receipt/invoice subjects with amount proof
+        'subject:(receipt OR invoice OR "payment confirmation" OR "order confirmation" OR "successfully charged" OR "auto-renewal" OR "billing statement")',
+        // #5: From known billing addresses
+        'from:(billing@ OR receipt@ OR invoice@ OR auto-confirm@ OR noreply@razorpay)',
       ];
 
       for (const rawQuery of gmailQueries) {
@@ -207,15 +212,18 @@ async function scanSingleAccount(creds: GmailCredentials): Promise<{ emails: Sca
               const urls = extractUrls(html, text);
               const website = detectWebsite(from, urls);
 
+              // Score for payment likelihood — skip marketing emails
+              const { score, isPayment, signals } = scorePaymentLikelihood(subject, from, text);
+              if (!isPayment) continue; // Skip non-payment emails
+
               emails.push({
                 id: String(uid),
-                subject,
-                from,
-                date,
+                subject, from, date,
                 body: text.slice(0, 3000),
                 html: html.slice(0, 5000),
-                website,
-                urls,
+                website, urls,
+                paymentScore: score,
+                paymentSignals: signals,
               });
             } catch { continue; }
           }
@@ -249,17 +257,22 @@ async function scanSingleAccount(creds: GmailCredentials): Promise<{ emails: Sca
                 let text = parsed.text || "";
                 if (!text && html) text = html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
                 const urls = extractUrls(html, text);
-                const website = detectWebsite(parsed.from?.text || "", urls);
+                const from = parsed.from?.text || "";
+                const subject = parsed.subject || "";
+                const website = detectWebsite(from, urls);
+
+                const { score, isPayment, signals } = scorePaymentLikelihood(subject, from, text);
+                if (!isPayment) continue;
 
                 emails.push({
                   id: String(uid),
-                  subject: parsed.subject || "",
-                  from: parsed.from?.text || "",
+                  subject, from,
                   date: parsed.date?.toISOString() || "",
                   body: text.slice(0, 3000),
                   html: html.slice(0, 5000),
-                  website,
-                  urls,
+                  website, urls,
+                  paymentScore: score,
+                  paymentSignals: signals,
                 });
               } catch { continue; }
             }

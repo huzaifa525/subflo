@@ -1,22 +1,28 @@
-export const EMAIL_EXTRACTION_PROMPT = `You are a subscription data extractor. Given an email subject and body, extract subscription/payment information.
+export const EMAIL_EXTRACTION_PROMPT = `You are a STRICT subscription payment receipt analyzer. You must determine if this email is an ACTUAL payment confirmation where money was charged.
 
-Return a JSON object with these fields:
+CRITICAL RULES:
+- Set is_subscription to TRUE only if the email contains PROOF of actual payment (amount charged, transaction ID, card used, UPI ref, etc.)
+- Set is_subscription to FALSE for: marketing emails, upgrade promotions, welcome emails, newsletters, trial invitations, account notifications without payment
+- A real receipt MUST contain at least ONE of: specific amount charged, payment method used, transaction/order ID, billing date
+- "Try premium", "Upgrade now", "Welcome to X", "Your account" WITHOUT payment details = FALSE
+- "Your payment of ₹X was successful", "Receipt for order #X", "Charged ₹X to card ending 4532" = TRUE
+
+Return a JSON object:
 {
   "is_subscription": true/false,
+  "confidence": "high|medium|low",
   "service_name": "string or null",
   "plan_name": "string or null (e.g. Basic, Premium, Pro, Family)",
-  "amount": number or null,
+  "amount": number or null (ONLY the actual amount charged, not promotional prices),
   "currency": "string (ISO code) or null",
   "billing_cycle": "monthly|yearly|weekly|quarterly or null",
   "next_renewal": "YYYY-MM-DD or null",
   "category": "entertainment|productivity|cloud|developer|music|video|gaming|news|health|education|finance|shopping|social|telecom|other or null",
   "payment_method": "credit_card|debit_card|upi|net_banking|wallet|auto_debit or null",
   "card_last4": "string (last 4 digits) or null",
-  "action": "payment|renewal|cancellation|trial_start|trial_end|price_change or null"
-}
-
-Only extract data you are confident about. Set fields to null if uncertain.
-Look for card numbers like "ending in 4532", UPI IDs, bank names, payment method mentions.`;
+  "action": "payment|renewal|cancellation|trial_start|trial_end|price_change or null",
+  "rejection_reason": "string or null (why is_subscription is false)"
+}`;
 
 export const SMS_EXTRACTION_PROMPT = `You are a transaction data extractor for Indian bank/UPI SMS messages. Given an SMS text, extract payment information.
 
