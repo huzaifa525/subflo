@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { ThemeToggle } from "./theme-toggle";
 import { SearchBar } from "./search-bar";
+import { NotificationBell } from "./notification-bell";
 
 const nav = [
   { href: "/dashboard", label: "Overview", icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 3a2 2 0 012-2h4v6H1V3zM9 1h4a2 2 0 012 2v2H9V1zM9 7h6v4a2 2 0 01-2 2H9V7zM1 9h6v6H3a2 2 0 01-2-2V9z" fill="currentColor" opacity=".7"/></svg> },
@@ -76,7 +77,10 @@ export function Sidebar() {
               {session?.user?.email || ""}
             </span>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center gap-0.5">
+            <NotificationBell />
+            <ThemeToggle />
+          </div>
         </div>
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
