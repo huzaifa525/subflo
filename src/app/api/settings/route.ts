@@ -16,6 +16,9 @@ export async function GET() {
   }
 
   return NextResponse.json({
+    // Setup
+    setupMode: settings.setupMode,
+    dbType: settings.dbType,
     // LLM
     llmProvider: settings.llmProvider,
     llmBaseUrl: settings.llmBaseUrl,
@@ -23,12 +26,12 @@ export async function GET() {
     hasLlmKey: !!settings.llmApiKey,
     // Gmail
     gmailEnabled: settings.gmailEnabled,
-    // Outlook (OAuth)
+    // Outlook
     outlookEnabled: settings.outlookEnabled,
+    outlookClientId: settings.outlookClientId,
+    outlookTenantId: settings.outlookTenantId,
+    hasOutlookSecret: !!settings.outlookSecret,
     outlookConnected: !!settings.outlookToken,
-    // SMS
-    smsEnabled: settings.smsEnabled,
-    smsAutoRead: settings.smsAutoRead,
     // Prefs
     currency: settings.currency,
     country: settings.country,
@@ -47,10 +50,10 @@ export async function PATCH(req: Request) {
   const body = await req.json();
 
   const allowed = [
+    "setupMode", "dbType", "dbUrl",
     "llmProvider", "llmBaseUrl", "llmApiKey", "llmModel",
     "gmailEnabled",
-    "outlookEnabled",
-    "smsEnabled", "smsAutoRead",
+    "outlookEnabled", "outlookClientId", "outlookSecret", "outlookTenantId",
     "currency", "country", "remindDaysBefore", "monthlyBudget",
   ];
 

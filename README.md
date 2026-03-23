@@ -16,9 +16,9 @@
 
 ## What is Subflo?
 
-Subflo scans your Gmail for payment receipts, parses bank SMS, and auto-detects recurring subscriptions. It uses any LLM (Ollama, OpenRouter, Groq, OpenAI) to extract service names, amounts, and billing cycles from your emails -- then tracks everything in one dashboard.
+Subflo scans your Gmail for payment receipts and auto-detects recurring subscriptions. It uses any LLM (Ollama, OpenRouter, Groq, OpenAI) to extract service names, amounts, and billing cycles from your emails -- then tracks everything in one dashboard.
 
-No bank API. No card linking. Just email scanning + AI.
+No bank API. No card linking. Just Gmail + AI.
 
 ## Features
 
@@ -37,11 +37,6 @@ No bank API. No card linking. Just email scanning + AI.
 - Auto-scan every 24 hours (background)
 - Auto-adds new subscriptions from receipts
 - 45+ service name mappings (fuzzy: "Claude by Anthropic" -> "Claude")
-
-**SMS Parsing**
-- Android: Share bank SMS directly to Subflo via PWA Share Target
-- Manual paste with LLM extraction
-- Recurring payment auto-detection from transaction patterns
 
 **Analytics**
 - Monthly/yearly spending with currency conversion (200+ currencies)

@@ -12,8 +12,6 @@ const nav = [
   { href: "/subscriptions", label: "Subscriptions", icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M1 6h14" stroke="currentColor" strokeWidth="1.5"/></svg> },
   { href: "/analytics", label: "Analytics", icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 13V8M7 13V5M11 13V3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg> },
   { href: "/calendar", label: "Calendar", icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="11" rx="2" stroke="currentColor" strokeWidth="1.5"/><path d="M1 7h14M5 1v4M11 1v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg> },
-  { href: "/inbox", label: "Inbox", icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 4l7 5 7-5M1 4v8a2 2 0 002 2h10a2 2 0 002-2V4M1 4a2 2 0 012-2h10a2 2 0 012 2" stroke="currentColor" strokeWidth="1.5"/></svg> },
-  { href: "/import", label: "Import", icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 2v8M8 10l-3-3M8 10l3-3M2 14h12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg> },
   { href: "/family", label: "Family", icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.3"/><circle cx="11" cy="6" r="2" stroke="currentColor" strokeWidth="1.3"/><path d="M1 14c0-2.5 2-4.5 5-4.5s5 2 5 4.5" stroke="currentColor" strokeWidth="1.3"/><path d="M11 9.5c2 0 4 1.5 4 3.5" stroke="currentColor" strokeWidth="1.3"/></svg> },
   { href: "/settings", label: "Settings", icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" strokeWidth="1.5"/><path d="M6.7 1.6a1 1 0 011.6 0l.6.8a1 1 0 00.9.4l1-.1a1 1 0 01.8 1.4l-.4.9a1 1 0 00.1.9l.6.8a1 1 0 01-.5 1.5l-1 .3a1 1 0 00-.7.7l-.2 1a1 1 0 01-1.5.5l-.8-.5a1 1 0 00-1 0l-.7.5a1 1 0 01-1.5-.5l-.3-1a1 1 0 00-.6-.7l-1-.3a1 1 0 01-.5-1.5l.5-.8a1 1 0 000-.9l-.4-1a1 1 0 01.8-1.3l1 .1a1 1 0 00.9-.4l.5-.9z" stroke="currentColor" strokeWidth="1.2"/></svg> },
 ];
@@ -21,6 +19,9 @@ const nav = [
 export function Sidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
+
+  // Hide family for individual mode (check via cookie/localStorage for perf)
+  const isMultiUser = typeof window !== "undefined" && localStorage.getItem("subflo-setup-mode") === "multi-user";
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-56 border-r flex flex-col" style={{ background: "var(--bg-secondary)", borderColor: "var(--border-default)" }}>
@@ -37,7 +38,7 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-1 space-y-0.5">
-        {nav.map((item) => {
+        {nav.filter((item) => item.href !== "/family" || isMultiUser).map((item) => {
           const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
           return (
             <Link

@@ -13,10 +13,10 @@ const LLM_PROVIDERS = [
 ];
 
 interface Settings {
+  setupMode: string; dbType: string;
   llmProvider: string; llmBaseUrl: string; llmModel: string; hasLlmKey: boolean;
   gmailEnabled: boolean;
-  outlookEnabled: boolean; outlookConnected: boolean;
-  smsEnabled: boolean; smsAutoRead: boolean;
+  outlookEnabled: boolean; outlookClientId: string; outlookTenantId: string; hasOutlookSecret: boolean; outlookConnected: boolean;
   currency: string; country: string; remindDaysBefore: number; monthlyBudget: number;
 }
 
@@ -57,6 +57,7 @@ export default function SettingsPage() {
       fetch("/api/email/test").then((r) => r.json()),
     ]).then(([d, g]) => {
       setS(d);
+      if (d.setupMode) localStorage.setItem("subflo-setup-mode", d.setupMode);
       setEp(d.llmProvider); setEUrl(d.llmBaseUrl); setEModel(d.llmModel);
       setGmailAccounts(g.accounts || []);
       setLoading(false);
@@ -455,110 +456,49 @@ export default function SettingsPage() {
 
         {s?.outlookEnabled && (
           <div className="space-y-3 pt-1">
-            {s?.outlookConnected ? (
-              <div className="flex items-center gap-2">
-                <span className="sf-badge sf-badge-green">Microsoft account connected</span>
-                <button onClick={() => save({ outlookEnabled: false })} className="sf-btn sf-btn-ghost text-[11px]" style={{ color: "var(--red)" }}>Disconnect</button>
-              </div>
-            ) : (
-              <>
-                <p className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>
-                  Sign in with your Microsoft account to scan Outlook inbox for subscription emails.
-                </p>
-                <button
-                  onClick={() => setOutlookHelp(!outlookHelp)}
-                  className="sf-btn sf-btn-secondary text-xs"
-                >
-                  <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><rect x="1" y="3" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="1.3"/><path d="M1 5l7 4 7-4" stroke="currentColor" strokeWidth="1.3"/></svg>
-                  Connect Microsoft Account
-                </button>
-              </>
-            )}
-
-            {outlookHelp && (
-              <div className="rounded-lg p-4 space-y-3 text-[12px] leading-relaxed" style={{ background: "var(--bg-primary)", border: "1px solid var(--border-default)" }}>
-                <p className="font-semibold text-[13px]">Outlook Setup</p>
-                <p style={{ color: "var(--text-tertiary)" }}>
-                  Microsoft requires OAuth for email access (they disabled app passwords in 2024).
-                  For self-hosted Subflo, the admin needs to register an Azure AD app once:
-                </p>
-
-                <div className="space-y-2">
-                  <div className="flex gap-2.5">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: "var(--accent-muted)", color: "var(--accent-text)" }}>1</span>
-                    <div>
-                      <p className="font-medium">Register app in Azure Portal</p>
-                      <p style={{ color: "var(--text-tertiary)" }}>
-                        Go to <a href="https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-text)" }}>Azure App Registrations</a> → New registration → Name: &quot;Subflo&quot;
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2.5">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: "var(--accent-muted)", color: "var(--accent-text)" }}>2</span>
-                    <div>
-                      <p className="font-medium">Add API permissions</p>
-                      <p style={{ color: "var(--text-tertiary)" }}>API Permissions → Add → Microsoft Graph → Delegated → <code className="px-1 rounded text-[11px]" style={{ background: "var(--bg-elevated)" }}>Mail.Read</code></p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2.5">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: "var(--accent-muted)", color: "var(--accent-text)" }}>3</span>
-                    <div>
-                      <p className="font-medium">Create client secret</p>
-                      <p style={{ color: "var(--text-tertiary)" }}>Certificates & Secrets → New client secret → Copy the value</p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2.5">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: "var(--accent-muted)", color: "var(--accent-text)" }}>4</span>
-                    <div>
-                      <p className="font-medium">Add redirect URI</p>
-                      <p style={{ color: "var(--text-tertiary)" }}>
-                        Authentication → Add platform → Web → Redirect URI:
-                        <code className="px-1 rounded text-[11px] block mt-0.5" style={{ background: "var(--bg-elevated)" }}>{typeof window !== "undefined" ? window.location.origin : ""}/api/auth/callback/azure-ad</code>
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="flex gap-2.5">
-                    <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0" style={{ background: "var(--accent-muted)", color: "var(--accent-text)" }}>5</span>
-                    <div>
-                      <p className="font-medium">Set env vars (admin only)</p>
-                      <p style={{ color: "var(--text-tertiary)" }}>
-                        Add to <code className="px-1 rounded text-[11px]" style={{ background: "var(--bg-elevated)" }}>.env</code>:
-                        MICROSOFT_CLIENT_ID, MICROSOFT_CLIENT_SECRET, MICROSOFT_TENANT_ID
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded p-2.5" style={{ background: "var(--yellow-muted)" }}>
-                  <p className="text-[11px] font-medium" style={{ color: "var(--yellow)" }}>
-                    Outlook OAuth requires a one-time admin setup. Once configured, all users can connect with one click. This is a Microsoft requirement — they killed app passwords in 2024.
-                  </p>
-                </div>
-              </div>
-            )}
+            {s?.outlookConnected && <span className="sf-badge sf-badge-green">Connected</span>}
+            <p className="text-[11px]" style={{ color: "var(--text-tertiary)" }}>
+              <a href="https://portal.azure.com/#blade/Microsoft_AAD_RegisteredApps/ApplicationsListBlade" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-text)" }}>Register Azure AD app</a> with Mail.Read permission. Redirect URI: <code className="px-1 rounded text-[10px]" style={{ background: "var(--bg-primary)" }}>{typeof window !== "undefined" ? window.location.origin : ""}/api/auth/callback/azure-ad</code>
+            </p>
+            <div>
+              <p className="text-[11px] font-medium mb-1" style={{ color: "var(--text-tertiary)" }}>Client ID</p>
+              <input type="text" defaultValue={s?.outlookClientId || ""} onBlur={(e) => save({ outlookClientId: e.target.value })} className="sf-input" placeholder="xxxxxxxx-xxxx-xxxx-xxxx" />
+            </div>
+            <div>
+              <p className="text-[11px] font-medium mb-1" style={{ color: "var(--text-tertiary)" }}>Client Secret</p>
+              <input type="password" onBlur={(e) => { if (e.target.value) save({ outlookSecret: e.target.value }); }} className="sf-input" placeholder={s?.hasOutlookSecret ? "••••••••••" : "Enter secret"} />
+            </div>
+            <div>
+              <p className="text-[11px] font-medium mb-1" style={{ color: "var(--text-tertiary)" }}>Tenant ID</p>
+              <input type="text" defaultValue={s?.outlookTenantId || "common"} onBlur={(e) => save({ outlookTenantId: e.target.value })} className="sf-input" placeholder="common" />
+            </div>
           </div>
         )}
       </div>
 
-      {/* ━━━ SMS ━━━ */}
+
+      {/* ━━━ Instance ━━━ */}
       <div className="sf-card p-4 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none" style={{ color: "var(--text-tertiary)" }}><rect x="3" y="1" width="10" height="14" rx="2" stroke="currentColor" strokeWidth="1.3"/><circle cx="8" cy="12" r="1" fill="currentColor"/></svg>
-            <h2 className="text-[13px] font-semibold">SMS Parsing</h2>
+        <h2 className="text-[13px] font-semibold">Instance</h2>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <p className="text-[11px] font-medium mb-1" style={{ color: "var(--text-tertiary)" }}>Setup mode</p>
+            <select value={s?.setupMode || "individual"} onChange={(e) => { save({ setupMode: e.target.value }); localStorage.setItem("subflo-setup-mode", e.target.value); }} className="sf-input">
+              <option value="individual">Individual</option>
+              <option value="multi-user">Multi-user (family/team)</option>
+            </select>
+            <p className="text-[10px] mt-1" style={{ color: "var(--text-tertiary)" }}>
+              {(s?.setupMode || "individual") === "individual" ? "Family features hidden" : "Family dashboard enabled in sidebar"}
+            </p>
           </div>
-          <button className="sf-toggle" data-active={String(!!s?.smsEnabled)} onClick={() => save({ smsEnabled: !s?.smsEnabled })} />
+          <div>
+            <p className="text-[11px] font-medium mb-1" style={{ color: "var(--text-tertiary)" }}>Database</p>
+            <select value={s?.dbType || "sqlite"} onChange={(e) => save({ dbType: e.target.value })} className="sf-input">
+              <option value="sqlite">SQLite (local)</option>
+              <option value="postgres">PostgreSQL</option>
+            </select>
+          </div>
         </div>
-        {s?.smsEnabled && (
-          <div className="text-[11px] space-y-1.5" style={{ color: "var(--text-tertiary)" }}>
-            <p><strong style={{ color: "var(--text-secondary)" }}>Android:</strong> Open SMS app → long-press a bank SMS → Share → Subflo. Auto-parsed by AI.</p>
-            <p><strong style={{ color: "var(--text-secondary)" }}>iPhone / Desktop:</strong> Go to Inbox page → paste SMS text manually.</p>
-          </div>
-        )}
       </div>
 
       {/* ━━━ Preferences ━━━ */}
@@ -603,6 +543,20 @@ export default function SettingsPage() {
             CSV
           </button>
         </div>
+      </div>
+
+      {/* Dev credits */}
+      <div className="text-center py-4 space-y-1">
+        <p className="text-[11px] font-medium" style={{ color: "var(--text-tertiary)" }}>
+          Subflo v1.0 &middot; Open Source &middot; MIT License
+        </p>
+        <p className="text-[10px]" style={{ color: "var(--text-tertiary)" }}>
+          Designed &amp; built by <a href="https://huzefanalkhedawala.in" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-text)" }}>Huzefa Nalkheda Wala</a>
+          &nbsp;&middot;&nbsp;
+          <a href="https://github.com/huzaifa525/subflo" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-text)" }}>GitHub</a>
+          &nbsp;&middot;&nbsp;
+          <a href="https://linkedin.com/in/huzefanalkheda" target="_blank" rel="noopener noreferrer" style={{ color: "var(--accent-text)" }}>LinkedIn</a>
+        </p>
       </div>
     </div>
   );

@@ -32,7 +32,12 @@ model UserSettings {
   id              String  @id @default(cuid())
   userId          String  @unique
 
-  // LLM Config (user sets in settings/onboarding)
+  // Instance setup
+  setupMode       String  @default("individual") // individual, multi-user
+  dbType          String  @default("sqlite") // sqlite, postgres
+  dbUrl           String  @default("") // postgres connection string (if postgres)
+
+  // LLM Config
   llmProvider     String  @default("ollama")
   llmBaseUrl      String  @default("http://localhost:11434/v1")
   llmApiKey       String  @default("")
@@ -41,13 +46,12 @@ model UserSettings {
   // Gmail
   gmailEnabled    Boolean @default(false)
 
-  // Outlook (OAuth — Microsoft killed basic auth)
-  outlookEnabled  Boolean @default(false)
-  outlookToken    String  @default("") // stored OAuth access token
-
-  // SMS Config
-  smsEnabled      Boolean @default(true)
-  smsAutoRead     Boolean @default(false) // Android auto-read permission granted
+  // Outlook OAuth (stored in DB, not ENV)
+  outlookEnabled    Boolean @default(false)
+  outlookClientId   String  @default("")
+  outlookSecret     String  @default("")
+  outlookTenantId   String  @default("common")
+  outlookToken      String  @default("")
 
   // Aristocles Pricing API (auto-registered)
   aristoclesKey   String  @default("")
@@ -56,7 +60,7 @@ model UserSettings {
   // Preferences
   remindDaysBefore Int    @default(3)
   currency         String @default("INR")
-  monthlyBudget    Float  @default(0) // 0 = no budget
+  monthlyBudget    Float  @default(0)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

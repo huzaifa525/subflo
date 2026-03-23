@@ -13,8 +13,6 @@ const tabs = [
 
 const moreLinks = [
   { href: "/calendar", label: "Calendar" },
-  { href: "/inbox", label: "Inbox" },
-  { href: "/import", label: "Import" },
   { href: "/family", label: "Family" },
   { href: "/settings", label: "Settings" },
 ];
@@ -23,7 +21,7 @@ export function MobileNav() {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
 
-  const isMoreActive = ["/calendar", "/inbox", "/import", "/family", "/settings"].some((p) => pathname.startsWith(p));
+  const isMoreActive = ["/calendar", "/family", "/settings"].some((p) => pathname.startsWith(p));
 
   return (
     <>
@@ -64,7 +62,7 @@ export function MobileNav() {
           <button
             onClick={() => setMoreOpen(!moreOpen)}
             className="flex flex-col items-center gap-0.5 px-4 py-1 min-w-[48px]"
-            style={{ color: moreOpen || isMoreActive ? "var(--accent)" : "var(--text-tertiary)" }}
+            style={{ color: moreOpen || ["/calendar", "/family", "/settings"].some((p) => pathname.startsWith(p)) ? "var(--accent)" : "var(--text-tertiary)" }}
           >
             <svg width="20" height="20" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="4" r="1.5" fill="currentColor"/><circle cx="8" cy="8" r="1.5" fill="currentColor"/><circle cx="8" cy="12" r="1.5" fill="currentColor"/></svg>
             <span className="text-[10px] font-medium">More</span>
