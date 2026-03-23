@@ -66,7 +66,7 @@ export function NotificationBell() {
           {/* Backdrop on mobile */}
           <div className="fixed inset-0 z-40 md:hidden" onClick={() => setOpen(false)} />
 
-          <div className="absolute right-0 mt-2 w-72 sf-card shadow-2xl z-50 overflow-hidden" style={{ maxHeight: 360 }}>
+          <div className="fixed bottom-20 left-4 right-4 sm:absolute sm:bottom-full sm:left-0 sm:right-auto sm:w-72 sm:mb-2 sf-card shadow-2xl z-50 overflow-hidden" style={{ maxHeight: 360 }}>
             {/* Header */}
             <div className="px-3.5 py-2.5 flex items-center justify-between" style={{ borderBottom: "1px solid var(--border-default)" }}>
               <span className="text-[12px] font-semibold">Notifications</span>
