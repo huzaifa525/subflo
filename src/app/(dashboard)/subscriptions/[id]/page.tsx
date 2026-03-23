@@ -154,6 +154,23 @@ export default function SubscriptionDetailPage() {
         {sub.status !== "active" && (
           <button onClick={() => setStatus("active")} className="sf-btn sf-btn-primary text-xs">Reactivate</button>
         )}
+        <button
+          onClick={async () => {
+            const res = await fetch("/api/reminders", {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ subscriptionId: sub.id }),
+            });
+            const data = await res.json();
+            alert(data.message || (data.sent ? "Reminder sent!" : "Failed to send"));
+          }}
+          className="sf-btn sf-btn-ghost text-xs"
+          style={{ color: "var(--accent-text)" }}
+          title="Send a test reminder email to yourself"
+        >
+          <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M4 6a4 4 0 018 0v3l1.5 2H2.5L4 9V6z" stroke="currentColor" strokeWidth="1.3"/><path d="M6 12a2 2 0 004 0" stroke="currentColor" strokeWidth="1.3"/></svg>
+          Test reminder
+        </button>
         <button onClick={handleDelete} className="sf-btn sf-btn-ghost text-xs ml-auto" style={{ color: "var(--red)" }}>Delete</button>
       </div>
 

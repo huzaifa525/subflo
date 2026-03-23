@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { processReminders } from "@/lib/email/send-reminder";
 
 // Get pending notifications (renewals within reminder window)
 export async function GET() {
@@ -23,6 +24,9 @@ export async function GET() {
     },
     orderBy: { nextRenewal: "asc" },
   });
+
+  // Auto-process pending email reminders
+  try { await processReminders(); } catch { /* silent */ }
 
   return NextResponse.json({
     notifications: subs.map((s) => ({
