@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
+import { ThemeToggle } from "./theme-toggle";
 
 const nav = [
   { href: "/dashboard", label: "Overview", icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 3a2 2 0 012-2h4v6H1V3zM9 1h4a2 2 0 012 2v2H9V1zM9 7h6v4a2 2 0 01-2 2H9V7zM1 9h6v6H3a2 2 0 01-2-2V9z" fill="currentColor" opacity=".7"/></svg> },
@@ -59,13 +60,16 @@ export function Sidebar() {
 
       {/* User */}
       <div className="px-3 py-3 border-t" style={{ borderColor: "var(--border-default)" }}>
-        <div className="flex items-center gap-2 px-1 mb-2">
-          <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-medium" style={{ background: "var(--bg-elevated)", color: "var(--text-secondary)" }}>
-            {session?.user?.name?.charAt(0)?.toUpperCase() || session?.user?.email?.charAt(0)?.toUpperCase() || "?"}
+        <div className="flex items-center justify-between px-1 mb-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-medium shrink-0" style={{ background: "var(--bg-elevated)", color: "var(--text-secondary)" }}>
+              {session?.user?.name?.charAt(0)?.toUpperCase() || session?.user?.email?.charAt(0)?.toUpperCase() || "?"}
+            </div>
+            <span className="text-xs truncate" style={{ color: "var(--text-secondary)" }}>
+              {session?.user?.email || ""}
+            </span>
           </div>
-          <span className="text-xs truncate" style={{ color: "var(--text-secondary)" }}>
-            {session?.user?.email || ""}
-          </span>
+          <ThemeToggle />
         </div>
         <button
           onClick={() => signOut({ callbackUrl: "/login" })}
