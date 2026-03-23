@@ -17,7 +17,7 @@ interface Settings {
   gmailEnabled: boolean; gmailEmail: string; hasGmailPassword: boolean;
   outlookEnabled: boolean; outlookConnected: boolean;
   smsEnabled: boolean; smsAutoRead: boolean;
-  currency: string; country: string; remindDaysBefore: number;
+  currency: string; country: string; remindDaysBefore: number; monthlyBudget: number;
 }
 
 export default function SettingsPage() {
@@ -543,6 +543,10 @@ export default function SettingsPage() {
               <option value="1">1 day</option><option value="3">3 days</option><option value="5">5 days</option><option value="7">7 days</option>
             </select>
           </div>
+        </div>
+        <div>
+          <p className="text-[11px] font-medium mb-1" style={{ color: "var(--text-tertiary)" }}>Monthly budget (0 = no limit)</p>
+          <input type="number" value={s?.monthlyBudget || ""} onChange={(e) => save({ monthlyBudget: parseFloat(e.target.value) || 0 })} className="sf-input" placeholder="e.g. 5000" />
         </div>
       </div>
 

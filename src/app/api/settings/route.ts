@@ -35,6 +35,7 @@ export async function GET() {
     currency: settings.currency,
     country: settings.country,
     remindDaysBefore: settings.remindDaysBefore,
+    monthlyBudget: settings.monthlyBudget,
   });
 }
 
@@ -52,7 +53,7 @@ export async function PATCH(req: Request) {
     "gmailEnabled", "gmailEmail", "gmailAppPassword",
     "outlookEnabled",
     "smsEnabled", "smsAutoRead",
-    "currency", "country", "remindDaysBefore",
+    "currency", "country", "remindDaysBefore", "monthlyBudget",
   ];
 
   const update: Record<string, unknown> = {};

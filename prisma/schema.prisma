@@ -55,6 +55,7 @@ model UserSettings {
   // Preferences
   remindDaysBefore Int    @default(3)
   currency         String @default("INR")
+  monthlyBudget    Float  @default(0) // 0 = no budget
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

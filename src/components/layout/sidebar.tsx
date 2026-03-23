@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut, useSession } from "next-auth/react";
 import { ThemeToggle } from "./theme-toggle";
+import { SearchBar } from "./search-bar";
 
 const nav = [
   { href: "/dashboard", label: "Overview", icon: <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M1 3a2 2 0 012-2h4v6H1V3zM9 1h4a2 2 0 012 2v2H9V1zM9 7h6v4a2 2 0 01-2 2H9V7zM1 9h6v6H3a2 2 0 01-2-2V9z" fill="currentColor" opacity=".7"/></svg> },
@@ -26,8 +27,13 @@ export function Sidebar() {
         <span className="text-sm font-semibold tracking-tight" style={{ color: "var(--text-primary)" }}>Subflo</span>
       </div>
 
+      {/* Search */}
+      <div className="px-2 py-2">
+        <SearchBar />
+      </div>
+
       {/* Nav */}
-      <nav className="flex-1 px-2 py-3 space-y-0.5">
+      <nav className="flex-1 px-2 py-1 space-y-0.5">
         {nav.map((item) => {
           const active = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
           return (

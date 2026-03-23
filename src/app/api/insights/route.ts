@@ -26,9 +26,11 @@ export async function GET() {
   }
 
   // Budget check
-  const budget = settings?.remindDaysBefore || 0; // reuse for now, TODO: add budget field
+  const budget = settings?.monthlyBudget || 0;
   if (budget > 0 && monthlyTotal > budget) {
-    insights.push({ type: "budget", icon: "⚠️", message: `You're spending ₹${Math.round(monthlyTotal)}/mo — over your ₹${budget} budget`, severity: "warning" });
+    insights.push({ type: "budget", icon: "⚠️", message: `Spending ${settings?.currency || "₹"}${Math.round(monthlyTotal)}/mo — over your ${settings?.currency || "₹"}${budget} budget!`, severity: "warning" });
+  } else if (budget > 0 && monthlyTotal > budget * 0.8) {
+    insights.push({ type: "budget", icon: "📊", message: `${Math.round((monthlyTotal / budget) * 100)}% of your ${settings?.currency || "₹"}${budget} budget used`, severity: "info" });
   }
 
   // Renewals this week
