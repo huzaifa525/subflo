@@ -480,24 +480,20 @@ export default function SettingsPage() {
       {/* ━━━ Instance ━━━ */}
       <div className="sf-card p-4 space-y-3">
         <h2 className="text-[13px] font-semibold">Instance</h2>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <p className="text-[11px] font-medium mb-1" style={{ color: "var(--text-tertiary)" }}>Setup mode</p>
-            <select value={s?.setupMode || "individual"} onChange={(e) => { save({ setupMode: e.target.value }); localStorage.setItem("subflo-setup-mode", e.target.value); }} className="sf-input">
-              <option value="individual">Individual</option>
-              <option value="multi-user">Multi-user (family/team)</option>
-            </select>
-            <p className="text-[10px] mt-1" style={{ color: "var(--text-tertiary)" }}>
-              {(s?.setupMode || "individual") === "individual" ? "Family features hidden" : "Family dashboard enabled in sidebar"}
-            </p>
-          </div>
-          <div>
-            <p className="text-[11px] font-medium mb-1" style={{ color: "var(--text-tertiary)" }}>Database</p>
-            <select value={s?.dbType || "sqlite"} onChange={(e) => save({ dbType: e.target.value })} className="sf-input">
-              <option value="sqlite">SQLite (local)</option>
-              <option value="postgres">PostgreSQL</option>
-            </select>
-          </div>
+        <div>
+          <p className="text-[11px] font-medium mb-1" style={{ color: "var(--text-tertiary)" }}>User management</p>
+          <select value={s?.setupMode || "individual"} onChange={(e) => { save({ setupMode: e.target.value }); localStorage.setItem("subflo-setup-mode", e.target.value); window.location.reload(); }} className="sf-input">
+            <option value="individual">Individual — just me</option>
+            <option value="multi-user">Multi-user — family / team</option>
+          </select>
+          <p className="text-[10px] mt-1" style={{ color: "var(--text-tertiary)" }}>
+            {(s?.setupMode || "individual") === "individual" ? "Family features hidden from sidebar" : "Family dashboard and invite members enabled"}
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-[11px]" style={{ color: "var(--text-tertiary)" }}>
+          <span>Database:</span>
+          <span className="sf-badge sf-badge-blue">{s?.dbType === "postgres" ? "PostgreSQL" : "SQLite"}</span>
+          <span style={{ color: "var(--text-tertiary)" }}>(set during onboarding)</span>
         </div>
       </div>
 
