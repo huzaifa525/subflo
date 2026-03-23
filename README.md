@@ -130,53 +130,6 @@ No OAuth app, no Google Cloud Console, no client IDs. Just an app password.
 
 Subflo auto-registers with [Aristocles API](https://aristocles.com.au) (free, 100 req/day) to fetch live subscription pricing. No manual setup needed.
 
-## Architecture
-
-```
-                    +---------------------------+
-                    |       Next.js 16 App       |
-                    |  +--------+  +---------+   |
-                    |  | Pages  |  | API     |   |
-                    |  | (React)|  | Routes  |   |
-                    |  +--------+  +---------+   |
-                    |        |          |         |
-                    |  +-----+----------+------+  |
-                    |  |   Core Libraries       |  |
-                    |  | LLM Client | Email     |  |
-                    |  | Pricing    | Service   |  |
-                    |  | Currency   | Mapper    |  |
-                    |  +-----|------------------+  |
-                    |        |                     |
-                    |  +-----+------+              |
-                    |  | Prisma 7   |              |
-                    |  | (SQLite)   |              |
-                    |  +------------+              |
-                    +---------------------------+
-```
-
-## API Endpoints
-
-| Method | Path | Description |
-|--------|------|-------------|
-| POST | `/api/auth/register` | Create account |
-| GET/POST | `/api/subscriptions` | List/create subscriptions |
-| GET/PATCH/DELETE | `/api/subscriptions/[id]` | Subscription CRUD |
-| GET | `/api/analytics` | Spending analytics |
-| GET | `/api/insights` | Smart spending insights |
-| GET | `/api/health-score` | Subscription health score |
-| GET | `/api/notifications` | Upcoming renewals + auto-scan |
-| POST | `/api/email/scan` | Scan Gmail for receipts |
-| GET/POST/DELETE | `/api/email/test` | Gmail account management |
-| POST | `/api/sms/parse` | Parse SMS text |
-| POST | `/api/pricing/lookup` | Live pricing (Aristocles) |
-| GET | `/api/alternatives` | Cheaper alternatives |
-| POST | `/api/reminders` | Process email reminders |
-| POST | `/api/import` | CSV bank statement import |
-| GET/POST | `/api/family` | Family member management |
-| GET/PATCH | `/api/settings` | User settings |
-| GET | `/api/currency` | Currency conversion |
-| GET | `/api/export` | Export data (JSON/CSV) |
-
 ## Contributing
 
 1. Fork the repo
@@ -185,12 +138,17 @@ Subflo auto-registers with [Aristocles API](https://aristocles.com.au) (free, 10
 4. Push (`git push origin feature/xyz`)
 5. Open a Pull Request
 
+## Author
+
+**[Huzefa Nalkheda Wala](https://huzefanalkhedawala.in)** -- AI Product Engineer
+
+- [LinkedIn](https://linkedin.com/in/huzefanalkheda)
+- [GitHub](https://github.com/huzaifa525)
+- [HuggingFace](https://huggingface.co/huzaifa525)
+- [Medium](https://huzefanalkheda.medium.com)
+
+Building production-scale AI systems at [CleverFlow](https://rubycrm.ai). Creator of [MedGenius LLaMA](https://huggingface.co/huzaifa525/MedGenius_LLaMA-3.2B) and [Medical Intelligence Dataset](https://huggingface.co/datasets/huzaifa525/Medical_Intelligence_Dataset_40k_Rows_of_Disease_Info_Treatments_and_Medical_QA). IIT Ropar AI. Patent holder (Design No. 375474-001).
+
 ## License
 
 MIT
-
----
-
-<p align="center">
-  Built by <a href="https://huzefanalkhedawala.in">Huzefa Nalkheda Wala</a>
-</p>
